@@ -24,7 +24,7 @@ public:
     void listen();//reads from all buttons
     void getListener(int);//return listener in array at index
     void getListeners();//return _listener_array
-    void getLength(){return _length;}
+    int getLength(){return _length;}
 };
 
 #endif /* ButtonController_hpp */

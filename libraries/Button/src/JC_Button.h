@@ -20,6 +20,7 @@ class Button
         // dbTime   Debounce time in milliseconds (default 25ms)
         // puEnable true to enable the AVR internal pullup resistor (default true)
         // invert   true to interpret a low logic level as pressed (default true)
+    Button(){m_pin = -1; m_dbTime = 25; m_puEnable = false; m_invert = false;}
         Button(uint8_t pin, uint32_t dbTime=25, uint8_t puEnable=true, uint8_t invert=true)
             : m_pin(pin), m_dbTime(dbTime), m_puEnable(puEnable), m_invert(invert) {}
 

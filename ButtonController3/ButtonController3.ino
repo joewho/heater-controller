@@ -11,12 +11,12 @@ void setup() {
   // put your setup code here, to run once:
    
   Serial.begin(9600);
-  Serial.print((String)bC.getLength());
+  Serial.print(bC.getLength());
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  for(auto i = 0;i <arrLength;i++){
-    Serial.print(myArr[i]);
-  }
+ // for(auto i = 0;i <arrLength;i++){
+    //Serial.print(myArr[i]);
+  //}
 }

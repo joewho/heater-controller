@@ -20,7 +20,7 @@ private:
     unsigned long _last_change;
     
 public:
-    ButtonListener(String s, int i):_name(s),_button_pin(i){_button = Button(i,25,false,false); }
+    ButtonListener(String, int);
     
     String getName(){return _name;}
     void setName(String s){_name = s;}
