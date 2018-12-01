@@ -1,23 +1,22 @@
 #include <TempSensorMonitor.h>
-#include <Sensor.h>
+//#include <Sensor.h>
 #include <JC_Button.h>
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(52, 50, 48, 46, 44, 42);
 
-const byte menu_button_pin = 32;
-const byte warning_button_pin = 34;
+const byte menu_button_pin = 32,
+          warning_button_pin = 34,
+          up_button_pin = 53,
+          down_button_pin = 51;
 
-const byte floor_led_pin = 22;
-const byte floor_warning_led_pin = 23;
+const byte floor_led_pin = 22,
+            floor_warning_led_pin = 23;
 
-const byte cabinet_led_pin = 24;
-const byte cabinet_warning_led_pin = 25;
+const byte cabinet_led_pin = 24,
+            cabinet_warning_led_pin = 25;
 
-const byte room_led_pin = 26;
-const byte room_warning_led_pin = 27;
-
-const byte up_button_pin = 53;
-const byte down_button_pin = 51;
+const byte room_led_pin = 26,
+            room_warning_led_pin = 27;
 
 const byte speaker_pin = 28;
 
@@ -47,8 +46,32 @@ enum states {WELCOME, FLOOR, FLOOR_EDIT, CAB, CAB_EDIT, ROOM, ROOM_EDIT, MULTI};
 static states CURRENT_STATE = WELCOME; // current state machine state
 static states DISPLAYED_STATE = WELCOME;
 
-enum modes {NORMAL, EDIT};
-static modes CURRENT_MODE;
+//enum modes {NORMAL, EDIT};
+//static modes CURRENT_MODE;
+struct buttonListener{
+  String _name;
+  Button* button;
+  byte button_pin;
+  String action;
+  String type;
+  uint32_t  last_change;
+};
+
+struct outputMessage{
+  String _name;
+  byte input_pin;
+  String type;
+  String reading;
+  uint32_t last_change;
+};
+
+buttonListener upListener{_name:"UP", button: &upButton, button_pin: up_button_pin};
+buttonListener downListener{_name:"DOWN", button: &downButton, button_pin: down_button_pin};
+buttonListener menuListener{_name:"MENU", button: &menuButton, button_pin: menu_button_pin};
+buttonListener warningListener{_name:"WARNING", button: &warningButton, button_pin: warning_button_pin};
+
+buttonListener* listenerArr[] = {&upListener, &downListener, &menuListener, &warningListener};
+const int listenerArrLength = 4;
 
 String displayLine1;
 String displayLine2;
@@ -126,15 +149,51 @@ void updateLCD(){
     
   }
 }
+void currentRead(int index){
+  String act;
+  if(listenerArr[index]->button->isPressed()) act = "isPressed";
+  if(listenerArr[index]->button->isPressed()) act = "isPressed";
+  if(listenerArr[index]->button->isReleased()) act = "isReleased";
+  if(listenerArr[index]->button->wasPressed()) act = "wasPressed";
+  if(listenerArr[index]->button->wasReleased()) act = "wasReleased";
+  if(listenerArr[index]->button->pressedFor(LONG_PRESS)) act = "pressedFor";
+  if(listenerArr[index]->button->releasedFor(LONG_PRESS)) act = "releasedFor";
+  
+  listenerArr[index]->action = act;
+  listenerArr[index]->last_change = (long)listenerArr[index]->button->lastChange();
+}
+
+
+outputMessage * listenAll(){
+  static outputMessage oM[listenerArrLength];
+   
+  for(int i=0;i<listenerArrLength;i++){
+    currentRead(i);
+      oM[i] = { listenerArr[i]->_name,
+                        listenerArr[i]->button_pin,
+                        "button",
+                        listenerArr[i]->action,                        
+                        listenerArr[i]->last_change};
+  }
+  return oM;
+  
+}
 
 void loop() {
   // put your main code here, to run repeatedly:
 
-  upButton.read();
-  downButton.read();
-  menuButton.read();
-  warningButton.read();
-
+  outputMessage *myOutput;
+  myOutput = listenAll();
+  
+  for(int i=0;i<listenerArrLength;i++){
+      Serial.print((String)myOutput[i]._name+" "
+                +(String)myOutput[i].input_pin+" "
+                +(String)myOutput[i].type+" "
+                +(String)myOutput[i].reading+" "
+                +(String)myOutput[i].last_change+"   ");
+  }
+  Serial.println();
+  
   current_time = millis();
   if((current_time - last_time_check)>= time_delay){
     last_time_check = current_time;

@@ -20,20 +20,20 @@ private:
     unsigned long _last_change;
     
 public:
-    ButtonListener(String, Button, int);
+    ButtonListener(String s, int i):_name(s),_button_pin(i){_button = Button(i,25,false,false); }
     
-    String getName();
-    void setName(String);
+    String getName(){return _name;}
+    void setName(String s){_name = s;}
     
-    Button getButton();
-    void setButton(Button);
+    Button getButton(){return _button;}
+    void setButton(Button b){_button = b;}
     
-    int getPin();
-    void setPin(int);
+    int getPin(){return _button_pin;}
+    void setPin(int i){_button_pin = i;}
     
-    String getAction();
+    String getAction(){return _action;}
     
-    long getLastChange();
+    long getLastChange(){return _last_change;}
     
     
 };

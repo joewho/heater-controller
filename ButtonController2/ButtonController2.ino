@@ -20,7 +20,7 @@ struct buttonListener{
   byte button_pin;
   String action;
   String type;
-  long  last_change;
+  uint32_t  last_change;
 };
 
 struct outputMessage{
@@ -28,8 +28,7 @@ struct outputMessage{
   byte input_pin;
   String type;
   String reading;
-//  bool just_changed;
-  long last_change;
+  uint32_t last_change;
 };
 
 
@@ -42,7 +41,6 @@ buttonListener warningListener{_name:"WARNING", button: &warningButton, button_p
 buttonListener* listenerArr[] = {&upListener, &downListener, &menuListener, &warningListener};
 const int listenerArrLength = 4;
 
-outputMessage outputAll[listenerArrLength];
 
 void setup() {
   // put your setup code here, to run once:
@@ -64,29 +62,24 @@ void currentRead(int index){
   if(listenerArr[index]->button->releasedFor(LONG_PRESS)) act = "releasedFor";
   
   listenerArr[index]->action = act;
-  listenerArr[index]->last_change = listenerArr[index]->last_change;
+  listenerArr[index]->last_change = (long)listenerArr[index]->button->lastChange();
 }
 
 
-outputMessage listenAll(){
-
-  
+outputMessage * listenAll(){
+  static outputMessage oM[listenerArrLength];
+   
   for(int i=0;i<listenerArrLength;i++){
     currentRead(i);
-      outputAll[i]._name = listenerArr[i]->_name;
-      outputAll[i].input_pin = listenerArr[i]->button_pin;
-      outputAll[i].reading = listenerArr[i]->action;
-      outputAll[i].type = "button";
-      outputAll[i].last_change = listenerArr[i]->last_change;
+      oM[i] = { listenerArr[i]->_name,
+                        listenerArr[i]->button_pin,
+                        "button",
+                        listenerArr[i]->action,                        
+                        listenerArr[i]->last_change
+      };
 
-  
-    
- //   Serial.print((String)listenerArr[i]->_name+" "
- //             +(String)listenerArr[i]->action+" "
- //             +(String)listenerArr[i]->last_change +"   ");
   }
-  return outputAll;
- // Serial.println();
+  return oM;
   
 }
 void loop() {
@@ -95,11 +88,14 @@ void loop() {
   downButton.read();
   menuButton.read();
   warningButton.read();
-  
-  outputMessage myOutput[4] = listenAll();
+
+  outputMessage *myOutput;
+  myOutput = listenAll();
 
   for(int i=0;i<listenerArrLength;i++){
       Serial.print((String)myOutput[i]._name+" "
+                +(String)myOutput[i].input_pin+" "
+                +(String)myOutput[i].type+" "
                 +(String)myOutput[i].reading+" "
                 +(String)myOutput[i].last_change+"   ");
   }

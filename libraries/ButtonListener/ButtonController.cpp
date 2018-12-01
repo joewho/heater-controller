@@ -6,24 +6,25 @@
 //
 //
 
-#include "ButtonController.h"
-#include "ButtonListener.h"
+#include "ButtonController.hpp"
+#include "ButtonListener.hpp"
+#include <JC_Button.h>
 
 ButtonController::ButtonController(){
     _length = 0;
     //need vector !array to add to end and dlete from end
-    _listener_array = {};
+    _listeners = {};
 }
 
-ButtonController::_getButton(int index){
-    if(index != NULL && _listener_array[index] != NULL){
-        return _listener_array[index].getButton();
+Button ButtonController::_getButton(int index){
+    if(index != NULL){
+        return _listeners[index].getButton();
     }
 }
 
-ButtonController::addButton(String name,Button b, int pin){
+void ButtonController::addButton(String name, int pin){
     //create ButtonListener from Button b
-    ButtonListener bL(name, b, pin);
+    ButtonListener bL(name, pin);
     
     //add ButtonListener to _listenerArray
     
