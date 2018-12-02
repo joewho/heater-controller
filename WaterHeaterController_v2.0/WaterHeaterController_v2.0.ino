@@ -149,6 +149,7 @@ void updateLCD(){
     
   }
 }
+
 void currentRead(int index){
   String act;
   if(listenerArr[index]->button->isPressed()) act = "isPressed";
@@ -200,6 +201,7 @@ void loop() {
     checkAllMonitors();
     updateLCD();
   }
+  checkStateChange();
   
   switch(CURRENT_STATE){
     case WELCOME:

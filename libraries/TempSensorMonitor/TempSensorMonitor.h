@@ -38,8 +38,10 @@
     
     float GetTargetTemp(); //return value of targetTemp_
     void SetTargetTemp(float val); //set the value of targetTemp from input float val
-
-    float GetTolerance();
+    void IncTargetTemp();
+    void DecTargetTemp();
+    
+     float GetTolerance();
     void SetTolerance(float val);
     
     float GetWarningTolerance();
@@ -139,6 +141,14 @@ String TempSensorMonitor::GetName(){
   void TempSensorMonitor::SetTargetTemp(float val){
   	targetTemp_ = val;
   }
+
+void TempSensorMonitor::IncTargetTemp(){
+    targetTemp_++;
+}
+
+void TempSensorMonitor::DecTargetTemp(){
+    targetTemp_--;
+}
   
   float TempSensorMonitor::GetTolerance(){
     return normalTolerance_;
