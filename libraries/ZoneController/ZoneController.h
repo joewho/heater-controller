@@ -15,6 +15,7 @@ private:
     int _pumpPin;//output
     int _pumpTempPin;//in
     int _pumpLEDPin;//ouput
+    
 
     int _supplyTempPin;//in
     int _returnTempPin;//in
@@ -128,7 +129,7 @@ const byte roomFlowLED = 27;
 //SensorHandler pumpTemp1("Pump1","Pump1",-1, -1, TEMP,CONTROL,true);//controll cool
 //SensorHandler supplyTemp1("Supply1","Supply1",-1, -1, TEMP,READ,false);
 //SensorHandler returnTemp1("Return1","Return1",-1, -1, TEMP,READ,false);
-SensorHandler zoneTemp1("Zone1","Zone1",floorPumpLED, 88, TEMP,CONTROL,false);
+SensorHandler zone1Temp("Zone1","Zone1",floorPumpLED, 88, TEMP,CONTROL,false);
 //SensorHandler fanTemp1("Fan1","Fan1",-1,-1,TEMP,CONTROL,true);//control cool
 //SensorHandler flowSensor1("Flow1","Flow1",floorFlowLED,-1,FLOW,READ,false);
 
@@ -136,7 +137,7 @@ SensorHandler zoneTemp1("Zone1","Zone1",floorPumpLED, 88, TEMP,CONTROL,false);
 //SensorHandler pumpTemp2("Pump2","Pump2",-1, -1, TEMP,CONTROL,true);//controll cool
 //SensorHandler supplyTemp2("Supply2","Supply2",-1, -1, TEMP,READ,false);
 //SensorHandler returnTemp2("Return2","Return2",-1, -1, TEMP,READ,false);
-SensorHandler zoneTemp2("Zone2","Zone2",cabinetPumpLED, 88, TEMP,CONTROL,false);
+SensorHandler zone2Temp("Zone2","Zone2",cabinetPumpLED, 65, TEMP,CONTROL,false);
 //SensorHandler fanTemp2("Fan2","Fan2",-1,-1,TEMP,CONTROL,true);//control cool
 //SensorHandler flowSensor2("Flow2","Flow2",cabinetFlowLED,-1,FLOW,READ,false);
 
@@ -144,16 +145,23 @@ SensorHandler zoneTemp2("Zone2","Zone2",cabinetPumpLED, 88, TEMP,CONTROL,false);
 //SensorHandler pumpTemp3("Pump3","Pump3",-1, -1, TEMP,CONTROL,true);//controll cool
 //SensorHandler supplyTemp3("Supply3","Supply3",-1, -1, TEMP,READ,false);
 //SensorHandler returnTemp3("Return3","Return3",-1, -1, TEMP,READ,false);
-SensorHandler zoneTemp3("Zone3","Zone3",roomPumpLED, 88, TEMP,CONTROL,false);
+SensorHandler zone3Temp("Zone3","Zone3",roomPumpLED, 45, TEMP,CONTROL,false);
 //SensorHandler fanTemp3("Fan3","Fan3",-1,-1,TEMP,CONTROL,true);//control cool
 //SensorHandler flowSensor3("Flow3","Flow3",roomFlowLED,-1,FLOW,READ,false);
 
-const int sensorArrLength = 1;
-const int zoneArrLength = 3;
-SensorHandler * zone1Sensors[1] = {&zoneTemp1};
-SensorHandler * zone2Sensors[1] = {&zoneTemp2};
-SensorHandler * zone3Sensors[1] = {&zoneTemp3};
+const byte sensorArrLength = 3;
+const byte zoneArrLength = 3;
+//SensorHandler * zone1Sensors[1] = {&zoneTemp1};
+//SensorHandler * zone2Sensors[1] = {&zoneTemp2};
+//SensorHandler * zone3Sensors[1] = {&zoneTemp3};
 
-ZoneController * zoneArr[3] = {&zone1, &zone2, &zone3};
+SensorHandler * sensorArr[3] = {&zone1Temp, &zone2Temp, &zone3Temp};
+
+void setupZones(){
+    pinMode(floorPumpLED, OUTPUT);
+    pinMode(cabinetPumpLED, OUTPUT);
+    pinMode(roomPumpLED, OUTPUT);
+}
+//ZoneController * zoneArr[3] = {&zone1, &zone2, &zone3};
 
 #endif /* ZoneController_h */

@@ -11,83 +11,61 @@
 
 LiquidCrystal lcd(52, 50, 48, 46, 44, 42);
 
-void updateStateChange();
-void updateReadingChange();
+//void updateStateChange();
+//void updateReadingChange();
 
 void updateLCD(){
-    if(DISPLAYED_STATE != CURRENT_STATE){
-        updateStateChange();
-        DISPLAYED_STATE = CURRENT_STATE;
-    }else{
-        updateReadingChange();
-    }
-}
-
-void updateReadingChange(){
     switch(CURRENT_STATE){
         case WELCOME:
             break;
         case FLOOR:
+            if(DISPLAYED_STATE != CURRENT_STATE){
+                lcd.clear();
+                lcd.setCursor(0, 0);
+                lcd.print(zone1Temp.getName());
+                if(!zone1Temp.isOn())
+                    lcd.print("  OFF");
+            }
             lcd.setCursor(0,1);
-            lcd.print(floor_monitor.GetReadingTemp());
-            lcd.print(" hold-"+(String)floor_monitor.GetTargetTemp());
+            lcd.print(zone1Temp.getReading());
+            lcd.print(" hold-"+(String)zone1Temp.getTarget());
             break;
         case CAB:
+            if(DISPLAYED_STATE != CURRENT_STATE){
+                lcd.clear();
+                lcd.setCursor(0, 0);
+                lcd.print(zone2Temp.getName());
+                if(!zone2Temp.isOn())
+                    lcd.print("  OFF");
+            }
             lcd.setCursor(0,1);
-            lcd.print(cabinet_monitor.GetReadingTemp());
-            lcd.print(" hold-"+(String)cabinet_monitor.GetTargetTemp());
+            lcd.print(zone2Temp.getReading());
+            lcd.print(" hold-"+(String)zone2Temp.getTarget());
             break;
         case ROOM:
+            if(DISPLAYED_STATE != CURRENT_STATE){
+                lcd.clear();
+                lcd.setCursor(0, 0);
+                lcd.print(zone3Temp.getName());
+                if(!zone3Temp.isOn())
+                    lcd.print("  OFF");
+            }
             lcd.setCursor(0,1);
-            lcd.print(room_monitor.GetReadingTemp());
-            lcd.print(" hold-"+(String)room_monitor.GetTargetTemp());
+            lcd.print(zone3Temp.getReading());
+            lcd.print(" hold-"+(String)zone3Temp.getTarget());
             break;
         case MULTI:
-            lcd.setCursor(0,1);
-            lcd.print((String)floor_monitor.GetReadingTemp()+" "+
-                      (String)cabinet_monitor.GetReadingTemp()+" "+
-                      (String)room_monitor.GetReadingTemp());
-            break;
-    }
-}
-
-void updateStateChange(){
-    switch(CURRENT_STATE){
-        case WELCOME:
-            break;
-        case FLOOR:
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print(floor_monitor.GetName());
-            lcd.setCursor(0,1);
-            lcd.print(floor_monitor.GetReadingTemp());
-            lcd.print(" hold-"+(String)floor_monitor.GetTargetTemp());
-            break;
-        case CAB:
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print(cabinet_monitor.GetName());
-            lcd.setCursor(0,1);
-            lcd.print(cabinet_monitor.GetReadingTemp());
-            lcd.print(" hold-"+(String)cabinet_monitor.GetTargetTemp());
-            break;
-        case ROOM:
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print(room_monitor.GetName());
-            lcd.setCursor(0,1);
-            lcd.print(room_monitor.GetReadingTemp());
-            lcd.print(" hold-"+(String)room_monitor.GetTargetTemp());
-            break;
-        case MULTI:
-            lcd.clear();
-            lcd.setCursor(0, 0);
+            if(DISPLAYED_STATE != CURRENT_STATE){
+                lcd.clear();
+                lcd.setCursor(0, 0);
+            }
             lcd.print("Floor Cab   Room");
             lcd.setCursor(0,1);
-            lcd.print((String)floor_monitor.GetReadingTemp()+" "+
-                      (String)cabinet_monitor.GetReadingTemp()+" "+
-                      (String)room_monitor.GetReadingTemp());
+            lcd.print((String)zone1Temp.getReading()+" "+
+                      (String)zone2Temp.getReading()+" "+
+                      (String)zone3Temp.getReading());
             break;
     }
 }
+
 #endif /* LCDController_h */

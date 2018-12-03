@@ -28,12 +28,13 @@ void checkStateChange(){
                 CURRENT_STATE = CAB;
             }else if(upButton.wasReleased()){
                 Serial.println("up was released FLOOR");
-                floor_monitor.IncTargetTemp();
+                changeTargetTemp(CURRENT_STATE,1);
             }else if(downButton.wasReleased()){
                 Serial.println("down was released FLOOR");
-                floor_monitor.DecTargetTemp();
+                changeTargetTemp(CURRENT_STATE,-1);
             }else if(warningButton.wasReleased()){
                 Serial.println("warning was released FLOOR");
+                toggleZonePower(CURRENT_STATE);
             }
             break;
         case CAB:
@@ -42,12 +43,13 @@ void checkStateChange(){
                 CURRENT_STATE = ROOM;
             }else if(upButton.wasReleased()){
                 Serial.println("up was released CAB");
-                cabinet_monitor.IncTargetTemp();
+                changeTargetTemp(CURRENT_STATE,1);
             }else if(downButton.wasReleased()){
                 Serial.println("down was released CAB");
-                cabinet_monitor.DecTargetTemp();
+                changeTargetTemp(CURRENT_STATE,-1);
             }else if(warningButton.wasReleased()){
                 Serial.println("warning was released CAB");
+                toggleZonePower(CURRENT_STATE);
             }
             break;
         case ROOM:
@@ -56,12 +58,13 @@ void checkStateChange(){
                 CURRENT_STATE = MULTI;
             }else if(upButton.wasReleased()){
                 Serial.println("up was released ROOM");
-                room_monitor.IncTargetTemp();
+                changeTargetTemp(CURRENT_STATE,1);
             }else if(downButton.wasReleased()){
                 Serial.println("down was released ROOM");
-                room_monitor.DecTargetTemp();
+                changeTargetTemp(CURRENT_STATE,-1);
             }else if(warningButton.wasPressed()){
                 Serial.println("warning was pressed ROOM");
+                toggleZonePower(CURRENT_STATE);
             }
             break;
         case MULTI:

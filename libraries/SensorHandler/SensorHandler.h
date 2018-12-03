@@ -23,6 +23,7 @@ private:
     float _warningTol;
     bool _callHeat; //true if reading is lower than normal tolerance
     bool _useAsCool; //if true some function will be inverted
+    bool _isOn;//true if system is 'on' else false
     bool _alarm; //true when something is wrong
  /*   struct _alarm{
         bool alarmState;
@@ -80,6 +81,9 @@ public:
     bool useAsCool(){return _useAsCool;}
     void setUseAsCool(bool b){_useAsCool = b;}
     
+    bool isOn(){return _isOn;}
+    void isOn(bool b){_isOn = b;}
+    
     bool inAlarm(){return _alarm;}
     void setAlarm(bool b){_alarm = b;}
     
@@ -98,12 +102,14 @@ SensorHandler::SensorHandler(){
     _interaction = READ;
     _pin = -1;
     _reading = -888;
-    _target = -888;
+    _target = -999;
     _normalTol = 3;
     _warningTol = 7;
     _callHeat = false;
     _useAsCool = false;
+    _isOn = true;
     _alarm = false;
+    stateChanged = false;
     //_alarm = {false,_name,_pin,{}};
 }
 
@@ -119,29 +125,35 @@ SensorHandler::SensorHandler(String n, String sn, int p, float t,sensorType st, 
     _warningTol = 7;
     _callHeat = false;
     _useAsCool = cool;
+    _isOn = true;
     _alarm = false;
+    stateChanged = false;
     //_alarm = {false,_name,_pin,{}};
 }
 
 void SensorHandler::updateHandler(){
     //for evalution and testing update creates a random number to update the sensors
     //instead of getting a reading from the sensor pin
-    float rnd = (float)random(11/10);
     
-    if(_callHeat){//calling for heat
-        _reading += rnd;//add rnd number to _reading to sim sensor reading
-        if(_reading >=(_target + _normalTol)){ //callHeat && temp at/above normal tolerance
-            _callHeat = false; //turn off heat
-            stateChanged = true; //just changed from needed heat to not, set to true
-        }else stateChanged = false; //reading is still lower than normal high tolerance
-    }else if (!_callHeat){ //not calling for heat
-        _reading -= rnd; //subtract rnd number form _reading to sim sensor reading
-        if(_reading <= (_target - _normalTol)){//!callHeat && temp at/below normal tolerance
-            _callHeat = true; //turn on heat
-            stateChanged = true; //just changed from not needing heat to needing, set to true
-        }else stateChanged = false; //reading is above normal low tolerance
+    float rnd = (float)random(11)/10;
+    if(!_isOn){
+        _reading -= rnd;
+        _callHeat = false;
+    }else{
+        if(_callHeat){//calling for heat
+            _reading += rnd;//add rnd number to _reading to sim sensor reading
+            if(_reading >=(_target + _normalTol)){ //callHeat && temp at/above normal tolerance
+                _callHeat = false; //turn off heat
+                stateChanged = true; //just changed from needed heat to not, set to true
+            }else stateChanged = false; //reading is still lower than normal high tolerance
+        }else if (!_callHeat){ //not calling for heat
+            _reading -= rnd; //subtract rnd number form _reading to sim sensor reading
+            if(_reading <= (_target - _normalTol)){//!callHeat && temp at/below normal tolerance
+                _callHeat = true; //turn on heat
+                stateChanged = true; //just changed from not needing heat to needing, set to true
+            }else stateChanged = false; //reading is above normal low tolerance
+        }
     }
-    
 }
 
 String SensorHandler::toString(){
