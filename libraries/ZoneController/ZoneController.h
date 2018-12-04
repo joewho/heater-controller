@@ -24,7 +24,9 @@ private:
     int _flowLEDPin;//out
 
     int _zoneTempPin;//in
+    int _zoneLEDPin; //out
     int _zoneManualOffPin;//in
+    //SensorHandler _zoneTempSensor;
     
     bool _fanAssist;
     int _fanPin; //output pin of the fan motor
@@ -64,7 +66,10 @@ public:
     void setFLowLEDPin(int i){_flowLEDPin  = i;}
     
     int getZoneTempPin(){return _zoneTempPin;}
-    void setZoneTempPin(int i){_zoneTempPin  = i;}
+    void setZoneTempPin(int i){
+        _zoneTempPin  = i;
+        ZoneTempSensor.setPin(i);
+    }
     
     int getZoneManualOffPin(){return _zoneManualOffPin;}
     void setZoneManualOffPin(int i){_zoneManualOffPin  = i;}
@@ -94,6 +99,7 @@ ZoneController::ZoneController(){
     _pumpPin = -1;//output
     _pumpTempPin = -1;//in
     _pumpLEDPin = -1;
+    //pumpTempSensor("pumpTempSensor","pumpTempSensor",_pumpPin, 60,TEMP,READ,true);//use for cooling
     
     _supplyTempPin = -1;//in
     _returnTempPin = -1;//in
@@ -103,6 +109,8 @@ ZoneController::ZoneController(){
     
     _zoneTempPin = -1;//in
     _zoneManualOffPin = -1;//in
+    _zoneLEDPin = -1;
+    _zoneTempSensor("ZoneTempSensor","Zone1",-1, -1, TEMP,CONTROL,false);
     
     _fanAssist = false;
     _fanPin = -1; //pin of the fan motor
@@ -125,6 +133,11 @@ const byte cabinetFlowLED = 25;
 const byte roomPumpLED = 26;
 const byte roomFlowLED = 27;
 
+//setup zone1
+//zone1.setName("zone1");
+//zone1.setZoneLEDPin(floorPumpLED);
+
+zone1.pumpTempSensor.set
 //Zone1 sensors
 //SensorHandler pumpTemp1("Pump1","Pump1",-1, -1, TEMP,CONTROL,true);//controll cool
 //SensorHandler supplyTemp1("Supply1","Supply1",-1, -1, TEMP,READ,false);

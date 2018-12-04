@@ -5,6 +5,7 @@ static states DISPLAYED_STATE = WELCOME;
 enum sensorType {TEMP, FLOW, FLOAT};
 enum interaction {CONTROL, READ};
 #include "ZoneController.h"
+#include "Sensor.h"
 
 void changeTargetTemp(states s,int diff){
   switch(s){

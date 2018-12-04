@@ -15,9 +15,11 @@ private:
     String _shortName;
     sensorType _sensorType;
     interaction _interaction;
-    int _pin;
-    float _reading;
-    float _target;
+    int _readingPin; //for reading temp/flow
+    int _LEDPin; //turn on when _callHeat is true;
+    float _reading; //value of reading temp/flow
+    float _target; //target temp/flow to achieve
+    
     
     float _normalTol;
     float _warningTol;
