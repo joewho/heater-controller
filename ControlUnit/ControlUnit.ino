@@ -47,50 +47,24 @@ SensorMap concrete2{sensor: &s2,
 SensorMap * mapArray[10] = {&concrete, &concrete2};
 int mapArraySize = 2;
 
-//get new values of seach sensor in SensorMap
+//get new values for each sensor in sensorMap
 void getNewValues(){
-  //since doing simulation need to check for if heating for not to 
-  //create new realistic values for sensors
   for(int i=0;i<mapArraySize;i++){
     if(mapArray[i]->function == HEATING){
-      //value is greater than high threshold
-      if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold)){
-        if(mapArray[i]->actuatorOn) 
-          //actuator is on -> need to shut off heat
-          mapArray[i]->toggleActuator = true;
-        else
-        //function is of heating but not reached target //keep heating
-          mapArray[i]->sensor->read(-1);
-      }else if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold)){
-        //value is less than low threshold 
-        if(!mapArray[i]->actuatorOn)
-          //actuator not on -> need to turn on heat
-          mapArray[i]->toggleActuator = true;
-        else
-        //function needs heat but has not reached target
+      if(mapArray[i]->actuatorOn) 
         mapArray[i]->sensor->read(1);
-      }
+      else
+        mapArray[i]->sensor->read(-1);
+    }else if(mapArray[i]->function == COOLING){
+      if(mapArray[i]->actuatorOn)
+        mapArray[i]->sensor->read(-1);
+      else
+        mapArray[i]->sensor->read(-1);
+    }
       
-    }else{//function is of cooling
-      //sensor is greater than high threshold
-      if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold)){        
-        if(!mapArray[i]->actuatorOn)
-        //actuator is not on -> need to turn on cooling
-          mapArray[i]->toggleActuator = true; 
-        else
-          mapArray[i]->sensor->read(-1); //keep cooling
-         
-     }else if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold)){
-        //sensor is less than low threshold 
-        if(mapArray[i]->actuatorOn)
-          //actuator is on -> need to turn of cooling
-          mapArray[i]->toggleActuator = true;
-        else
-          mapArray[i]->sensor->read(1);  //sensor is below or equal to target...stop cooling
-      }//
-    }//cooling 
   }//for loop
 }
+
 //send values to GUI unit
 void sendValuesToGUI(){
   //for now print out values to serial
@@ -102,7 +76,18 @@ void sendValuesToGUI(){
   Serial.println();
 }
 
+void compareValuesHeating(){}
+void compareValuesCooling(){}
 
+void compareValues(){
+  
+  for(int i=0;i<mapArraySize;i++){
+    if(mapArray[i]->function == HEATING)
+      compareValuesHeating();
+     else
+      compareValuesCooling();
+  }
+}
 //send value to driver/switching unit
 void sendToSwitcher(){
   for(int i=0;i<mapArraySize;i++){
@@ -124,7 +109,8 @@ void setup() {
 void loop() {
   getNewValues();
   sendValuesToGUI();
-  sendToSwitcher();
+//  compareValues();
+//  sendToSwitcher();
 /*  while(concrete.function == HEATING && concrete.sensor->getValue() < concrete.target){
     concrete.sensor->read(1);
   }
