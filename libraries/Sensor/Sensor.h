@@ -36,12 +36,12 @@ public:
     //input should be -1 or +1 depending on heating or cooling at the moment
     void read(int plusMinus){
         //here it should call an analog read function
-        Serial.println("read-value: "+(String)_value);
+//        Serial.println("read-value: "+(String)_value);
         float rnd = (float)random(10)/10;
-        Serial.println("read-rnd: "+(String)rnd);
+//        Serial.println("read-rnd: "+(String)rnd);
 
         _value += (plusMinus * rnd);
-        Serial.println("read-value: "+(String)_value);
+//        Serial.println("read-value: "+(String)_value);
 
     }
     
