@@ -6,43 +6,9 @@ enum sensorType {TEMP, FLOW, FLOAT};
 enum interaction {CONTROL, READ};
 #include "ZoneController.h"
 #include "Sensor.h"
+void changeTargetTemp();
+void toggleZonePower();
 
-void changeTargetTemp(states s,int diff){
-  switch(s){
-    case FLOOR:
-      zone1Temp.setTarget(zone1Temp.getTarget()+diff);
-      break;
-    case CAB:
-      zone2Temp.setTarget(zone2Temp.getTarget()+diff);
-      break;
-    case ROOM:
-      zone3Temp.setTarget(zone3Temp.getTarget()+diff);
-      break;
-  }
-}
-
-void toggleZonePower(states s){
-  switch(s){
-     case FLOOR:
-     if(zone1Temp.isOn())
-        zone1Temp.isOn(false);//turn off power to zone
-     else
-        zone1Temp.isOn(true);//turn on power to zone
-      break;
-    case CAB:
-     if(zone2Temp.isOn())
-        zone2Temp.isOn(false);//turn off power to zone
-     else
-        zone2Temp.isOn(true);//turn on power to zone
-      break;
-    case ROOM:
-     if(zone3Temp.isOn())
-        zone3Temp.isOn(false);//turn off power to zone
-     else
-        zone3Temp.isOn(true);//turn on power to zone
-      break;
-  }
-}
 
 #include "ButtonController.h"
 
@@ -77,6 +43,42 @@ void checkAllSensors(){
     }//else if
   }
 }
+void changeTargetTemp(states s,int diff){
+  switch(s){
+    case FLOOR:
+      zone1Temp.setTarget(zone1Temp.getTarget()+diff);
+      break;
+    case CAB:
+      zone2Temp.setTarget(zone2Temp.getTarget()+diff);
+      break;
+    case ROOM:
+      zone3Temp.setTarget(zone3Temp.getTarget()+diff);
+      break;
+  }
+}
+void toggleZonePower(states s){
+  switch(s){
+     case FLOOR:
+     if(zone1Temp.isOn())
+        zone1Temp.isOn(false);//turn off power to zone
+     else
+        zone1Temp.isOn(true);//turn on power to zone
+      break;
+    case CAB:
+     if(zone2Temp.isOn())
+        zone2Temp.isOn(false);//turn off power to zone
+     else
+        zone2Temp.isOn(true);//turn on power to zone
+      break;
+    case ROOM:
+     if(zone3Temp.isOn())
+        zone3Temp.isOn(false);//turn off power to zone
+     else
+        zone3Temp.isOn(true);//turn on power to zone
+      break;
+  }
+}
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
