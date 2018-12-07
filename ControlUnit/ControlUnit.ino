@@ -1,28 +1,33 @@
 #include "Sensor.h"
+#include "ButtonController2.h"
+#include "JC_Button.h"
 enum Function {HEATING, COOLING};
 
+Button upButton(-1,25,false,false);
+ButtonListener bc("upButton",&upButton,-1);
+
 const byte floorTempSensorPin = -1;
-const byte floorPumpPin = -1;
+const byte floorPumpPin = 22;
 const byte floorPumpTempSensorPin = -1;
-const byte floorFlowSensorPin = 23;
+const byte floorFlowSensorPin = -1;
 const byte floorGreenLedPin = 22;
 const byte floorRedLedPin = 23;
 
 const byte cabTempSensorPin = -1;
-const byte cabPumpPin= -1;
+const byte cabPumpPin= 24;
 const byte cabPumpTempSensorPin = -1;
 const byte cabFinTempSensorPin = -1;
 const byte cabFanPin = -1;
-const byte cabFlowSensorPin = 25;
+const byte cabFlowSensorPin = -1;
 const byte cabGreenLedPin = 24;
 const byte cabRedLedPin = 25;
 
 const byte roomTempSensorPin = -1;
-const byte roomPumpPin = -1;
+const byte roomPumpPin = 26;
 const byte roomPumpTempSensorPin = -1;
 const byte roomFinTempSensorPin = -1;
 const byte roomFanPin = -1;
-const byte roomFlowSensorPin = 26;
+const byte roomFlowSensorPin = -1;
 const byte roomGreenLedPin = 26;
 const byte roomRedLedPin = 27;
 
@@ -41,6 +46,8 @@ float roomTargetTemp = 60;
 float roomTargetTempCool = -30;
 
 const int threshold = 3;
+
+int tempReading;
 
 unsigned long time_delay = 1000; //milliseconds of delay to check time
 unsigned long last_time_check = 0; //time at instance
@@ -151,9 +158,8 @@ void compareValuesHeating(int i){//i is index of SensorMap in mapArray
 //  Serial.print("  actuatorOn: "+(String)mapArray[i]->actuatorOn);
  // Serial.print("  toggleActuator: "+(String)mapArray[i]->toggleActuator);
   if(mapArray[i]->actuatorOn){
-   
     if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold))
-      mapArray[i]->toggleActuator = true;  
+      mapArray[i]->toggleActuator = true;
   }else if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold)){
       mapArray[i]->toggleActuator = true;
     }
@@ -186,10 +192,10 @@ void compareValues(){
 void sendToSwitcher(){
   for(int i=0;i<mapArraySize;i++){
     if(mapArray[i]->toggleActuator){
-      mapArray[i]->actuatorOn =! mapArray[i]->actuatorOn;
-      //toggle of actuator
+      mapArray[i]->actuatorOn = !mapArray[i]->actuatorOn;
+      
       digitalWrite(mapArray[i]->actuatorPin,mapArray[i]->actuatorOn);
-      //toggle led
+      //toggle leds
       digitalWrite(mapArray[i]->greenLedPin,mapArray[i]->actuatorOn);
       digitalWrite(mapArray[i]->redLedPin,!mapArray[i]->actuatorOn);
       mapArray[i]->toggleActuator = false;  
@@ -210,14 +216,21 @@ void setup() {
   pinMode(roomGreenLedPin,OUTPUT);
 
    s10.setValue(floorTargetTemp);
+   inFloorTemp.actuatorOn = true;
    s20.setValue(cabTargetTemp);
+   cabinetTemp.actuatorOn = true;
    s30.setValue(roomTargetTemp);
-   time_delay = 10;
+   roomAirTemp.actuatorOn = true;
+   time_delay = 1000;
+   upButton.begin();
+   //Serial.println("upButtonController-pin: "+(String)bc.getPin());
+   Serial.println(bc.toString());
 }
 void loop() {
     current_time = millis();
   if((current_time - last_time_check)>= time_delay){
     last_time_check = current_time;
+    
     getNewValues();
     //sendValuesToGUI();
     compareValues();

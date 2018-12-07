@@ -8,7 +8,7 @@
 #ifndef ButtonController_h
 #define ButtonController_h
 
-#include <String.h>
+//#include <String.h>
 #include <JC_Button.h>
 const byte menu_button_pin = 32;
 const byte warning_button_pin = 34;
