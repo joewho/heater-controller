@@ -1,16 +1,18 @@
+
 #include "Sensor.h"
 #include "ButtonController2.h"
-#include "JC_Button.h"
+//#include GUI
+//#include Driver
 enum Function {HEATING, COOLING};
 
 Button upButton(-1,25,false,false);
 ButtonListener bc("upButton",&upButton,-1);
 
 const byte floorTempSensorPin = -1;
-const byte floorPumpPin = 22;
+const byte floorPumpPin = 11;//22;
 const byte floorPumpTempSensorPin = -1;
 const byte floorFlowSensorPin = -1;
-const byte floorGreenLedPin = 22;
+const byte floorGreenLedPin = 11;//22;
 const byte floorRedLedPin = 23;
 
 const byte cabTempSensorPin = -1;
@@ -19,7 +21,7 @@ const byte cabPumpTempSensorPin = -1;
 const byte cabFinTempSensorPin = -1;
 const byte cabFanPin = -1;
 const byte cabFlowSensorPin = -1;
-const byte cabGreenLedPin = 24;
+const byte cabGreenLedPin = 12;//24;
 const byte cabRedLedPin = 25;
 
 const byte roomTempSensorPin = -1;
@@ -28,7 +30,7 @@ const byte roomPumpTempSensorPin = -1;
 const byte roomFinTempSensorPin = -1;
 const byte roomFanPin = -1;
 const byte roomFlowSensorPin = -1;
-const byte roomGreenLedPin = 26;
+const byte roomGreenLedPin = 13;//26;
 const byte roomRedLedPin = 27;
 
 
@@ -53,7 +55,7 @@ unsigned long time_delay = 1000; //milliseconds of delay to check time
 unsigned long last_time_check = 0; //time at instance
 unsigned long current_time = 0;
 
-
+//instantiate all temperature sensors
 Sensor s10("inFloor", "TEMP", floorTempSensorPin); 
 Sensor s11("inFloorPump", "TEMP", floorPumpTempSensorPin);
 Sensor s20("Cabinet","TEMP", cabTempSensorPin);   
@@ -62,6 +64,10 @@ Sensor s22("CabinetFin","TEMP", cabFinTempSensorPin);
 Sensor s30("roomAir","TEMP", roomTempSensorPin);  
 Sensor s31("roomAirPump","TEMP", roomPumpTempSensorPin);
 Sensor s32("roomAirFin","TEMP", roomFinTempSensorPin);
+
+//instantiate all buttons with ButtonController
+ButtonController2 inputHandler;
+
 
 //specific to floor
 struct SensorMap{
@@ -216,15 +222,23 @@ void setup() {
   pinMode(roomGreenLedPin,OUTPUT);
 
    s10.setValue(floorTargetTemp);
-   inFloorTemp.actuatorOn = true;
+   inFloorTemp.toggleActuator = true;
    s20.setValue(cabTargetTemp);
-   cabinetTemp.actuatorOn = true;
+   cabinetTemp.toggleActuator = true;
    s30.setValue(roomTargetTemp);
-   roomAirTemp.actuatorOn = true;
+   roomAirTemp.toggleActuator= true;
    time_delay = 1000;
    upButton.begin();
    //Serial.println("upButtonController-pin: "+(String)bc.getPin());
    Serial.println(bc.toString());
+   inputHandler.addButton("LL",2);
+    inputHandler.addButton("LR",3);
+    inputHandler.addButton("RL",6);
+    inputHandler.addButton("RR",7);
+    pinMode(2,INPUT);
+    pinMode(3,INPUT);
+    pinMode(6,INPUT);
+    pinMode(7,INPUT);
 }
 void loop() {
     current_time = millis();
