@@ -117,13 +117,13 @@ void getNewValues(){
 //send values to GUI unit
 void sendValuesToGUI(){
   //for now print out values to serial
-  SensorOutput output[3];
+  SensorOutput sensorOutput[3];
   for(int i=0;i<mapArraySize;i++){
-    output[i].name = mapArray[i]->sensor->getName();
-    output[i].value = mapArray[i]->sensor->getValue();
-    output[i].target = mapArray[i]->target;
+    sensorOutput[i].name = mapArray[i]->sensor->getName();
+    sensorOutput[i].value = mapArray[i]->sensor->getValue();
+    sensorOutput[i].target = mapArray[i]->target;
   }
-  userInterface.getSensorInputs(output);
+  userInterface.uploadUserInputs(sensorOutput, mapArraySize, buttonController.getButtonOutputs(), buttonController.arrayLength());
 }
 
 void compareValuesHeating(int i){//i is index of SensorMap in mapArray
@@ -190,38 +190,44 @@ void setup() {
    roomAirTemp.toggleActuator= true;
    time_delay = 3000;
 
-   pinMode(button1Pin,INPUT);
-    pinMode(button2Pin,INPUT);
-    pinMode(button3Pin,INPUT);
-    pinMode(button4Pin,INPUT);
+   //pinMode(button1Pin,INPUT);
+    //pinMode(button2Pin,INPUT);
+    //pinMode(button3Pin,INPUT);
+    //pinMode(button4Pin,INPUT);
     buttonController.addButton("LL",button1Pin);
     //ButtonListener * listener = buttonController.getListener(0);
     //Serial.println(buttonController.getListener(0)->toString());
-    //buttonController.addButton("LR",button2Pin);
-   // buttonController.addButton("RL",button3Pin);
-  //  buttonController.addButton("RR",button4Pin);
+    buttonController.addButton("LR",button2Pin);
+    buttonController.addButton("RL",button3Pin);
+    buttonController.addButton("RR",button4Pin);
   //
   buttonController.beginSequence();
-    //Serial.println(buttonController.toString());
-
+    Serial.println(buttonController.toString());
+    //Serial.println(bo[0].name);
+//    Serial.println(buttonController.toStringPretty());
   //  firstRun = true;
     Serial.println("FIRST RUN");
+    
 }
 void loop() {
   buttonController.listening();
-//  if(firstRun){
-//    Serial.println(buttonController.toString());
-//    firstRun = false;
-//  }
-  //ButtonOutput * buttonOutput = buttonController.getButtonOutputs();
-//  Serial.println(buttonController.toStringPretty());
-  //Serial.println(buttonController.getButtonOutputs());
-  //userInterface.getUserInputs(buttonController.getButtonOutputs());
-//  Serial.print(buttonController.toStringPretty());
+  Serial.print(buttonController.toStringPretty());
+/*  
+    ButtonOutput * bo = buttonController.getButtonOutputs();
+    for(int i=0;i<buttonController.arrayLength();i++){
+      Serial.print(bo[i].name+" ");
+      Serial.print((String)bo[i].pin+" ");
+      Serial.print(bo[i].action+" ");
+      Serial.print((String)bo[i].lastChange+" ");
+      Serial.println((String)bo[i].hasChanged);
+    }
+    Serial.println();
+*/
+    
     current_time = millis();
   if((current_time - last_time_check)>= time_delay){
     last_time_check = current_time;
-        Serial.println(buttonController.toString());
+    //    Serial.println(buttonController.toString());
 
     getNewValues();
     sendValuesToGUI();
