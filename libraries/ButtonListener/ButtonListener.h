@@ -49,7 +49,6 @@ public:
     void updateListener(){
         _button.read();
         if(_button.isPressed()) _action = "isPressed";
-        if(_button.isPressed()) _action = "isPressed";
         if(_button.isReleased()) _action = "isReleased";
         if(_button.wasPressed()) _action = "wasPressed";
         if(_button.wasReleased()) _action = "wasReleased";

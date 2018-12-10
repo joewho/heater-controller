@@ -23,7 +23,7 @@ private:
     SensorOutput* _sensorInputs;
     states _currentState;
     states _displayedState;
-    void _getInputsUpdateDisplay();
+    void _processAndDisplay();
     DisplayController display;
 public:
     GUI(){_currentState = WELCOME; _displayedState = WELCOME;}
@@ -33,12 +33,16 @@ public:
     void uploadUserInputs(SensorOutput s[], int sensorLength, ButtonOutput b[], int buttonLength){
         _buttonInputs = b;
         _sensorInputs = s;
-  /*      for(int i=0;i< sensorLength;i++){
-//            Serial.print(_sensorInputs[i].name+" ");
-//            Serial.print(_sensorInputs[i].value+" ");
-//            Serial.println(_sensorInputs[i].target);
+        _processAndDisplay();
+/*
+        for(int i=0;i< sensorLength;i++){
+            Serial.print("i: "+(String)i+" ");
+           Serial.print(_sensorInputs[i].name+" ");
+            Serial.print(_sensorInputs[i].value+" ");
+            Serial.println(_sensorInputs[i].target);
         }
         for(int i=0;i<buttonLength;i++){
+            Serial.print("i: "+(String)i+" ");
             Serial.print(_buttonInputs[i].name+" ");
             Serial.print((String)_buttonInputs[i].pin+" ");
             Serial.print(_buttonInputs[i].action+" ");
@@ -58,10 +62,11 @@ public:
 };
 
 #endif /* GUI_h */
-void GUI::_getInputsUpdateDisplay(){
+void GUI::_processAndDisplay(){
     String s;
     switch(_currentState){
         case WELCOME:
+            //display.changeDisplay("Hello World!","Hello World2!");
             if(_buttonInputs[0].action == "isPressed"){
                 Serial.println("menu was pressed WELCOME->FLOOR");
                 _currentState = FLOOR;
@@ -76,7 +81,7 @@ void GUI::_getInputsUpdateDisplay(){
             }
             break;
         case FLOOR:
-            if(_buttonInputs[0].action == "wasReleased"){
+            if(_buttonInputs[0].action == "isPressed"){
                 Serial.println("menu was released FLOOR->CAB");
                 _currentState = CAB;
                 s = _sensorInputs[1].value + " hold-"+_sensorInputs[1].target;
@@ -93,7 +98,7 @@ void GUI::_getInputsUpdateDisplay(){
             }
             break;
         case CAB:
-            if(_buttonInputs[0].action == "wasReleased"){
+            if(_buttonInputs[0].action == "isPressed"){
                 Serial.println("menu was released CAB->ROOM");
                 _currentState = ROOM;
                 s = _sensorInputs[2].value + " hold-"+_sensorInputs[2].target;
@@ -110,7 +115,7 @@ void GUI::_getInputsUpdateDisplay(){
             }
             break;
         case ROOM:
-            if(_buttonInputs[0].action == "wasReleased"){
+            if(_buttonInputs[0].action == "isPressed"){
                 Serial.println("menu was released ROOM->MULTI");
                 _currentState = MULTI;
                 String s;
@@ -128,7 +133,7 @@ void GUI::_getInputsUpdateDisplay(){
             }
             break;
         case MULTI:
-            if(_buttonInputs[0].action == "wasReleased"){
+            if(_buttonInputs[0].action == "isPressed"){
                 Serial.println("menu was released MULTI->FLOOR");
                 _currentState = FLOOR;
                 s = _sensorInputs[0].value + " hold-"+_sensorInputs[0].target;
@@ -142,4 +147,5 @@ void GUI::_getInputsUpdateDisplay(){
             }
             break;
     }//switch
+    _displayedState = _currentState;
 }//getNewState()

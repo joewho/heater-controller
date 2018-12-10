@@ -172,6 +172,7 @@ void sendToSwitcher(){
 bool firstRun;
 void setup() {
   Serial.begin(9600);
+  lcd.begin(16,2);
   pinMode(floorRedLedPin,OUTPUT);
   pinMode(floorGreenLedPin,OUTPUT);
   
@@ -188,18 +189,13 @@ void setup() {
    cabinetTemp.toggleActuator = true;
    s30.setValue(roomTargetTemp);
    roomAirTemp.toggleActuator= true;
-   time_delay = 3000;
+   time_delay = 1000;
 
-   //pinMode(button1Pin,INPUT);
-    //pinMode(button2Pin,INPUT);
-    //pinMode(button3Pin,INPUT);
-    //pinMode(button4Pin,INPUT);
-    buttonController.addButton("LL",button1Pin);
-    //ButtonListener * listener = buttonController.getListener(0);
-    //Serial.println(buttonController.getListener(0)->toString());
-    buttonController.addButton("LR",button2Pin);
-    buttonController.addButton("RL",button3Pin);
-    buttonController.addButton("RR",button4Pin);
+
+    buttonController.addButton("menu",button1Pin);
+    buttonController.addButton("onOff",button2Pin);
+    buttonController.addButton("up",button3Pin);
+    buttonController.addButton("down",button4Pin);
   //
   buttonController.beginSequence();
     Serial.println(buttonController.toString());
@@ -207,32 +203,23 @@ void setup() {
 //    Serial.println(buttonController.toStringPretty());
   //  firstRun = true;
     Serial.println("FIRST RUN");
-    
+    lcd.print("Hello World3!");
 }
 void loop() {
   buttonController.listening();
-  Serial.print(buttonController.toStringPretty());
-/*  
-    ButtonOutput * bo = buttonController.getButtonOutputs();
-    for(int i=0;i<buttonController.arrayLength();i++){
-      Serial.print(bo[i].name+" ");
-      Serial.print((String)bo[i].pin+" ");
-      Serial.print(bo[i].action+" ");
-      Serial.print((String)bo[i].lastChange+" ");
-      Serial.println((String)bo[i].hasChanged);
-    }
-    Serial.println();
-*/
-    
+
+  //Serial.print(buttonController.toStringPretty());
+        sendValuesToGUI(); 
     current_time = millis();
   if((current_time - last_time_check)>= time_delay){
     last_time_check = current_time;
     //    Serial.println(buttonController.toString());
 
     getNewValues();
-    sendValuesToGUI();
+  //  sendValuesToGUI();
     compareValues();
     sendToSwitcher();
     //Serial.println();
   }
+
 }

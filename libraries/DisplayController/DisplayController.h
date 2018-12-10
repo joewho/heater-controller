@@ -9,7 +9,8 @@
 #define DisplayController_h
 #include <LiquidCrystal.h>
 
-LiquidCrystal lcd(52, 50, 48, 46, 44, 42);
+const int rs=52,en=50,d4=51,d5=48,d6=49,d7=46;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 class DisplayController{
 private:

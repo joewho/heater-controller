@@ -57,7 +57,7 @@ void ButtonController2::addButton(String name, int pin){
     
     //ButtonListener listener(name,&button,pin);
     //Serial.println(listener.toString());
-    _listenerArr[_arrLength]= ButtonListener(name,Button(pin,25,false,false),pin);
+    _listenerArr[_arrLength]= ButtonListener(name,Button(pin,75,false,false),pin);
     Serial.println("ButtonController-addButton(): ");
     Serial.println(_listenerArr[_arrLength].toString());
     
