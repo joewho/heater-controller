@@ -1,10 +1,12 @@
+enum states {WELCOME, FLOOR, FLOOR_EDIT, CAB, CAB_EDIT, ROOM, ROOM_EDIT, MULTI};  // states for ZONE ID and the state machine/display 
+enum Function {HEATING, COOLING};
 
 #include "Sensor.h"
 #include "ButtonController2.h"
 #include "GUI.h"
 //#include Driver
 #include "Constants.h"
-enum Function {HEATING, COOLING};
+
 
 float floorTargetTemp = 88;
 float floorTargetTempCool = -30;
@@ -42,11 +44,12 @@ struct SensorMap{
   byte actuatorPin;
   byte greenLedPin;
   byte redLedPin;
-  byte zoneID;
+  states zoneID;
   byte alarmID;
   Function function;
   bool actuatorOn;
   bool toggleActuator; //true if the actuator needs to be turned on or off to regulate the temperature
+  bool zoneOn;
 };
 
 SensorMap inFloorTemp{sensor: &s10,
@@ -54,11 +57,12 @@ SensorMap inFloorTemp{sensor: &s10,
                   actuatorPin: floorPumpPin,
                   greenLedPin: floorGreenLedPin,
                   redLedPin: floorRedLedPin,
-                  zoneID: -1,
+                  zoneID: FLOOR,
                   alarmID:-1,
                   function: HEATING,
                   actuatorOn: false,
-                  toggleActuator: false};
+                  toggleActuator: false,
+                  zoneOn: true};
 
 SensorMap inFLoorPumpTemp{};
                   
@@ -67,11 +71,12 @@ SensorMap cabinetTemp{sensor: &s20,
                   actuatorPin: cabPumpPin,
                   greenLedPin: cabGreenLedPin,
                   redLedPin: cabRedLedPin,
-                  zoneID: -1,
+                  zoneID: CAB,
                   alarmID:-1,
                   function: HEATING,
                   actuatorOn: false,
-                  toggleActuator: false};
+                  toggleActuator: false,
+                  zoneOn: true};
 
 SensorMap cabinetPumpTemp{};
 
@@ -82,11 +87,12 @@ SensorMap roomAirTemp{sensor: &s30,
                   actuatorPin: roomPumpPin,
                   greenLedPin: roomGreenLedPin,
                   redLedPin: roomRedLedPin,
-                  zoneID: -1,
+                  zoneID: ROOM,
                   alarmID:-1,
                   function: HEATING,
                   actuatorOn: false,
-                  toggleActuator: false};
+                  toggleActuator: false,
+                  zoneOn: true};
 
 SensorMap roomAirPumpTemp{};
 
@@ -100,22 +106,28 @@ int mapArraySize = 3;
 void getNewValues(){
   for(int i=0;i<mapArraySize;i++){
     if(mapArray[i]->function == HEATING){
-      if(mapArray[i]->actuatorOn) 
-        mapArray[i]->sensor->read(1);
-      else
-        mapArray[i]->sensor->read(-1);
+     // if(mapArray[i]->zoneOn){
+        if(mapArray[i]->actuatorOn) 
+          mapArray[i]->sensor->read(1);
+        else
+          mapArray[i]->sensor->read(-1);
+    //  }else
+    //    mapArray[i]->sensor->read(-1);
     }else if(mapArray[i]->function == COOLING){
-      if(mapArray[i]->actuatorOn)
-        mapArray[i]->sensor->read(-1);
-      else
-        mapArray[i]->sensor->read(1);
+    //  if(mapArray[i]->zoneOn){
+        if(mapArray[i]->actuatorOn)
+          mapArray[i]->sensor->read(-1);
+        else
+          mapArray[i]->sensor->read(1);
+      //}else
+      //  mapArray[i]->sensor->read(1);
     }
       
   }//for loop
 }
 
 //send values to GUI unit
-void sendValuesToGUI(){
+GUIOutput* sendValuesToGUI(){
   //for now print out values to serial
   SensorOutput sensorOutput[3];
   for(int i=0;i<mapArraySize;i++){
@@ -123,41 +135,71 @@ void sendValuesToGUI(){
     sensorOutput[i].value = mapArray[i]->sensor->getValue();
     sensorOutput[i].target = mapArray[i]->target;
   }
-  userInterface.uploadUserInputs(sensorOutput, mapArraySize, buttonController.getButtonOutputs(), buttonController.arrayLength());
+    return userInterface.uploadUserInputs(sensorOutput, mapArraySize, buttonController.getButtonOutputs(), buttonController.arrayLength());
 }
 
 void compareValuesHeating(int i){//i is index of SensorMap in mapArray
- if(mapArray[i]->actuatorOn){
-    if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold))
-      mapArray[i]->toggleActuator = true;
-  }else if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold)){
-      mapArray[i]->toggleActuator = true;
-    }
- 
+ if(mapArray[i]->zoneOn){
+   if(mapArray[i]->actuatorOn){
+      if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold))
+        mapArray[i]->toggleActuator = true;
+    }else if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold))
+        mapArray[i]->toggleActuator = true;
+  }
 }
 void compareValuesCooling(int i){
-  if(mapArray[i]->actuatorOn){
-    if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold))
+  if(mapArray[i]->zoneOn){
+    if(mapArray[i]->actuatorOn){
+      if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold))
+        mapArray[i]->toggleActuator = true;
+    }else if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold))
       mapArray[i]->toggleActuator = true;
-  }else if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold))
-    mapArray[i]->toggleActuator = true;
+  }
 }
 
 void compareValues(){
   
   for(int i=0;i<mapArraySize;i++){
-//    Serial.print("compareHeating- value: "+(String)mapArray[i]->sensor->getValue());
-//    Serial.print("  actuatorOn: "+(String)mapArray[i]->actuatorOn);
     if(mapArray[i]->function == HEATING)
       compareValuesHeating(i);
      else
       compareValuesCooling(i);
- //     Serial.print("         ");
   }
 }
 //send value to driver/switching unit
-void sendToSwitcher(){
+void sendToSwitcher(GUIOutput* g){
+    /*              
+  Serial.print("sendToSwitcher\n");
   for(int i=0;i<mapArraySize;i++){
+    
+  
+    Serial.print("SensorMap["+(String)i+"] name: ");
+    Serial.print(mapArray[i]->sensor->getName());
+      Serial.print("  SensorMap["+(String)i+"] value: ");
+    Serial.print(mapArray[i]->sensor->getValue());
+    Serial.print("  SensorMap["+(String)i+"] target: ");
+    Serial.print(mapArray[i]->target);
+      Serial.print("  SensorMap["+(String)i+"] zoneID: ");
+    Serial.print(mapArray[i]->zoneID);
+      Serial.print("  SensorMap["+(String)i+"] actuatorOn: ");
+    Serial.print(mapArray[i]->actuatorOn);
+  Serial.print("  SensorMap["+(String)i+"] toggleActuator: ");
+    Serial.print(mapArray[i]->toggleActuator);
+    Serial.print("  SensorMap["+(String)i+"] zoneOn: ");
+    Serial.println(mapArray[i]->zoneOn);
+  }
+                   
+  Serial.print("index: "+(String)g->sensorIndex+" ");
+  Serial.print("update: "+(String)g->needToUpdate+" ");
+  Serial.print("target: "+(String)g->newTarget+" ");
+  Serial.println("toggle: "+(String)g->toggleOnOff);
+  */
+  for(int i=0;i<mapArraySize;i++){
+    if(!mapArray[i]->zoneOn){
+      mapArray[i]->actuatorOn = false;
+      mapArray[i]->toggleActuator = false;
+    }
+
     if(mapArray[i]->toggleActuator){
       mapArray[i]->actuatorOn = !mapArray[i]->actuatorOn;
       
@@ -167,9 +209,30 @@ void sendToSwitcher(){
       digitalWrite(mapArray[i]->redLedPin,!mapArray[i]->actuatorOn);
       mapArray[i]->toggleActuator = false;  
     }
-  }//for loop
+    
+     if(g->needToUpdate){
+      if(!g->toggleOnOff)
+        mapArray[g->sensorIndex]->target = g->newTarget;
+      else{
+        //toggleZoneOff
+        mapArray[g->sensorIndex]->zoneOn = !mapArray[g->sensorIndex]->zoneOn;
+        //toggleActuator
+        mapArray[g->sensorIndex]->actuatorOn = !mapArray[g->sensorIndex]->actuatorOn;
+        digitalWrite(mapArray[g->sensorIndex]->actuatorPin,mapArray[g->sensorIndex]->actuatorOn);
+        digitalWrite(mapArray[g->sensorIndex]->greenLedPin,mapArray[g->sensorIndex]->actuatorOn);
+        digitalWrite(mapArray[g->sensorIndex]->redLedPin,!mapArray[g->sensorIndex]->actuatorOn);
+        mapArray[g->sensorIndex]->toggleActuator = false;  
+      }//if(toggleOnOff)
+      
+    }//if(needToUpdate
+  }
+
+  
 }//sendToSwitcher()
+
 bool firstRun;
+GUIOutput* guiOutput;
+
 void setup() {
   Serial.begin(9600);
   lcd.begin(16,2);
@@ -184,42 +247,33 @@ void setup() {
   pinMode(roomGreenLedPin,OUTPUT);
 
    s10.setValue(floorTargetTemp);
-   inFloorTemp.toggleActuator = true;
    s20.setValue(cabTargetTemp);
-   cabinetTemp.toggleActuator = true;
    s30.setValue(roomTargetTemp);
-   roomAirTemp.toggleActuator= true;
-   time_delay = 1000;
+   time_delay = 1500;
 
 
     buttonController.addButton("menu",button1Pin);
     buttonController.addButton("onOff",button2Pin);
     buttonController.addButton("up",button3Pin);
     buttonController.addButton("down",button4Pin);
-  //
+  
   buttonController.beginSequence();
-    Serial.println(buttonController.toString());
-    //Serial.println(bo[0].name);
-//    Serial.println(buttonController.toStringPretty());
-  //  firstRun = true;
-    Serial.println("FIRST RUN");
-    lcd.print("Hello World3!");
+    lcd.print("Hello World!");
+//    getNewValues();
 }
 void loop() {
-  buttonController.listening();
 
+  buttonController.listening();
   //Serial.print(buttonController.toStringPretty());
-        sendValuesToGUI(); 
+  
+  guiOutput = sendValuesToGUI();
+  compareValues();
+  sendToSwitcher(guiOutput);
+
     current_time = millis();
   if((current_time - last_time_check)>= time_delay){
     last_time_check = current_time;
-    //    Serial.println(buttonController.toString());
-
     getNewValues();
-  //  sendValuesToGUI();
-    compareValues();
-    sendToSwitcher();
-    //Serial.println();
   }
-
+  
 }

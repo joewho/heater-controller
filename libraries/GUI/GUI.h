@@ -8,51 +8,42 @@
 #ifndef GUI_h
 #define GUI_h
 #include "DisplayController.h"
-enum states {WELCOME, FLOOR, CAB, ROOM, MULTI};  // states for the state machine
-//static states CURRENT_STATE = WELCOME; // current state machine state
-//static states DISPLAYED_STATE = WELCOME;
+
 struct SensorOutput{
     String name;
-    String value;
-    String target;
+    float value;
+    float target;
+};
+
+struct GUIOutput{
+    bool needToUpdate;
+    int sensorIndex;
+    float newTarget;
+    bool toggleOnOff;
 };
 
 class GUI{
 private:
     ButtonOutput* _buttonInputs;
     SensorOutput* _sensorInputs;
+    GUIOutput _guiOutput;
     states _currentState;
     states _displayedState;
     void _processAndDisplay();
     DisplayController display;
 public:
-    GUI(){_currentState = WELCOME; _displayedState = WELCOME;}
+    GUI(){
+        _currentState = WELCOME;
+        _displayedState = WELCOME;
+    }
     
-//    void getUserInputs(ButtonOutput bo[]){_buttonInputs = bo; _getInputsUpdateDisplay();}
-//    void getSensorInputs(SensorOutput s[]){_buttonInputs = bo;}
-    void uploadUserInputs(SensorOutput s[], int sensorLength, ButtonOutput b[], int buttonLength){
+    GUIOutput* uploadUserInputs(SensorOutput s[], int sensorLength, ButtonOutput b[], int buttonLength){
         _buttonInputs = b;
         _sensorInputs = s;
         _processAndDisplay();
-/*
-        for(int i=0;i< sensorLength;i++){
-            Serial.print("i: "+(String)i+" ");
-           Serial.print(_sensorInputs[i].name+" ");
-            Serial.print(_sensorInputs[i].value+" ");
-            Serial.println(_sensorInputs[i].target);
-        }
-        for(int i=0;i<buttonLength;i++){
-            Serial.print("i: "+(String)i+" ");
-            Serial.print(_buttonInputs[i].name+" ");
-            Serial.print((String)_buttonInputs[i].pin+" ");
-            Serial.print(_buttonInputs[i].action+" ");
-            Serial.print((String)_buttonInputs[i].lastChange+" ");
-            Serial.println((String)_buttonInputs[i].hasChanged+" ");
-        }
-        Serial.println();
-   */
+        return &_guiOutput;
     }
-    
+
     states getCurrentState(){return _currentState;}
     void setCurrentState(states s){_currentState = s;}
     
@@ -64,80 +55,160 @@ public:
 #endif /* GUI_h */
 void GUI::_processAndDisplay(){
     String s;
+    _guiOutput = {false,-1,-888,false};
     switch(_currentState){
         case WELCOME:
-            //display.changeDisplay("Hello World!","Hello World2!");
-            if(_buttonInputs[0].action == "isPressed"){
+            if(_buttonInputs[0].action == "wasReleased"){
                 Serial.println("menu was pressed WELCOME->FLOOR");
                 _currentState = FLOOR;
-                s = _sensorInputs[0].value + " hold-"+_sensorInputs[0].target;
+                s = (String)_sensorInputs[0].value + " hold-"+(String)_sensorInputs[0].target;
                 display.changeDisplay(_sensorInputs[0].name,s);
+                Serial.println(_sensorInputs[0].name);
+                Serial.println(s);
+                
             }else if(_buttonInputs[1].action == "wasReleased"){
-                Serial.println("up was pressed WELCOME");
+                Serial.println("up was released WELCOME");
             }else if(_buttonInputs[2].action == "wasReleased"){
-                Serial.println("down was pressed WELCOME");
+                Serial.println("down was released WELCOME");
             }else if(_buttonInputs[3].action == "wasReleased"){
-                Serial.println("warning was pressed WELCOME");
+                Serial.println("warning was released WELCOME");
             }
             break;
         case FLOOR:
-            if(_buttonInputs[0].action == "isPressed"){
-                Serial.println("menu was released FLOOR->CAB");
+            display.updateSensorDisplay((String)_sensorInputs[0].value+ " hold-"+(String)_sensorInputs[0].target);
+            
+            _guiOutput.sensorIndex = 0;
+            _guiOutput.newTarget = _sensorInputs[0].target;
+            
+            if(_buttonInputs[0].action == "wasReleased"){
+                Serial.println("menu was pressed FLOOR->CAB");
                 _currentState = CAB;
-                s = _sensorInputs[1].value + " hold-"+_sensorInputs[1].target;
+                s =(String) _sensorInputs[1].value + " hold-"+(String)_sensorInputs[1].target;
                 display.changeDisplay(_sensorInputs[1].name,s);
+                Serial.println(_sensorInputs[1].name);
+                Serial.println(s);
+                
+            }else if(_buttonInputs[0].action == "pressedFor"){
+                Serial.println("menu pressedFOR FLOOR->CAB");
+                _currentState = FLOOR_EDIT;
+                display.changeDisplay(_sensorInputs[0].name+" EDIT",
+                                      (String)_sensorInputs[0].value+ " hold-"+(String)_sensorInputs[0].target);
+                
+                
+                
             }else if(_buttonInputs[1].action == "wasReleased"){
                 Serial.println("up was released FLOOR");
-//                changeTargetTemp(CURRENT_STATE,1);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.newTarget++;
+                
             }else if(_buttonInputs[2].action == "wasReleased"){
                 Serial.println("down was released FLOOR");
-//                changeTargetTemp(CURRENT_STATE,-1);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.newTarget--;
+                
             }else if(_buttonInputs[3].action == "wasReleased"){
                 Serial.println("warning was released FLOOR");
-//                toggleZonePower(CURRENT_STATE);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.toggleOnOff = true;
+            }
+            break;
+        case FLOOR_EDIT:
+            if(_buttonInputs[0].action == "isPressed"){
+                Serial.println("menu isPressed FLOOR_EDIT");
+
+            }else if(_buttonInputs[0].action == "wasPressed"){
+                Serial.println("menu wasPressed FLOOR_EDIT->FLOOR");
+                _currentState = FLOOR;
+                s = (String)_sensorInputs[0].value + " hold-"+(String)_sensorInputs[0].target;
+                display.changeDisplay(_sensorInputs[0].name,s);
+                
+            }else if(_buttonInputs[0].action == "wasReleased"){
+                Serial.println("menu wasReleased FLOOR_EDIT");
+                
+            }else if(_buttonInputs[0].action == "releasedFor"){
+                Serial.println("menu releasedFor FLOOR_EDIT");
+            }
+            else if(_buttonInputs[0].action == "isReleased"){
+                Serial.println("menu isReleased FLOOR_EDIT");
+                lcd.noDisplay();
+                delay(500);
+                lcd.display();
+            }
+            else if(_buttonInputs[0].action == "pressedFor"){
+                Serial.println("menu pressedFor FLOOR_EDIT");
             }
             break;
         case CAB:
-            if(_buttonInputs[0].action == "isPressed"){
-                Serial.println("menu was released CAB->ROOM");
+            display.updateSensorDisplay((String)_sensorInputs[1].value+ " hold-"+(String)_sensorInputs[1].target);
+            
+            _guiOutput.sensorIndex = 1;
+            _guiOutput.newTarget = _sensorInputs[1].target;
+            
+            if(_buttonInputs[0].action == "wasReleased"){
+                Serial.println("menu was pressed CAB->ROOM");
                 _currentState = ROOM;
-                s = _sensorInputs[2].value + " hold-"+_sensorInputs[2].target;
+                s = (String)_sensorInputs[2].value + " hold-"+(String)_sensorInputs[2].target;
                 display.changeDisplay(_sensorInputs[2].name,s);
+                Serial.println(_sensorInputs[2].name);
+                Serial.println(s);
+                
             }else if(_buttonInputs[1].action == "wasReleased"){
                 Serial.println("up was released CAB");
-//                changeTargetTemp(CURRENT_STATE,1);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.newTarget++;
+                
             }else if(_buttonInputs[2].action == "wasReleased"){
                 Serial.println("down was released CAB");
-//                changeTargetTemp(CURRENT_STATE,-1);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.newTarget--;
             }else if(_buttonInputs[3].action == "wasReleased"){
                 Serial.println("warning was released CAB");
-//                toggleZonePower(CURRENT_STATE);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.toggleOnOff = true;
             }
             break;
         case ROOM:
-            if(_buttonInputs[0].action == "isPressed"){
-                Serial.println("menu was released ROOM->MULTI");
+            display.updateSensorDisplay((String)_sensorInputs[2].value+ " hold-"+(String)_sensorInputs[2].target);
+            
+            _guiOutput.sensorIndex = 2;
+            _guiOutput.newTarget = _sensorInputs[2].target;
+            
+            if(_buttonInputs[0].action == "wasReleased"){
+                Serial.println("menu was pressed ROOM->MULTI");
                 _currentState = MULTI;
                 String s;
-                s = _sensorInputs[0].value +" "+ _sensorInputs[1].value +" "+ _sensorInputs[2].value;
+                s = (String)_sensorInputs[0].value +" "+ (String)_sensorInputs[1].value +" "+ (String)_sensorInputs[2].value;
                 display.changeDisplay("Floor Cab  Room",s);
+                Serial.println("Floor Cab  Room");
+                Serial.println(s);
+                
             }else if(_buttonInputs[1].action == "wasReleased"){
                 Serial.println("up was released ROOM");
-//                changeTargetTemp(CURRENT_STATE,1);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.newTarget++;
+                
             }else if(_buttonInputs[2].action == "wasReleased"){
                 Serial.println("down was released ROOM");
-//                changeTargetTemp(CURRENT_STATE,-1);
-            }else if(_buttonInputs[3].action == "wasPressed"){
-                Serial.println("warning was pressed ROOM");
-//                toggleZonePower(CURRENT_STATE);
+                _guiOutput.needToUpdate = true;
+                _guiOutput.newTarget--;
+                
+            }else if(_buttonInputs[3].action == "wasReleased"){
+                Serial.println("warning was released ROOM");
+                _guiOutput.needToUpdate = true;
+                _guiOutput.toggleOnOff = true;
             }
             break;
         case MULTI:
-            if(_buttonInputs[0].action == "isPressed"){
-                Serial.println("menu was released MULTI->FLOOR");
+            display.updateSensorDisplay((String)_sensorInputs[0].value +" "
+                                        + (String)_sensorInputs[1].value +" "
+                                        + (String)_sensorInputs[2].value);
+            if(_buttonInputs[0].action == "wasReleased"){
+                Serial.println("menu was pressed MULTI->FLOOR");
                 _currentState = FLOOR;
-                s = _sensorInputs[0].value + " hold-"+_sensorInputs[0].target;
+                s = (String)_sensorInputs[0].value + " hold-"+(String)_sensorInputs[0].target;
                 display.changeDisplay(_sensorInputs[0].name,s);
+                Serial.println(_sensorInputs[0].name);
+                Serial.println(s);
             }else if(_buttonInputs[1].action == "wasReleased"){
                 Serial.println("up was released MULTI");
             }else if(_buttonInputs[2].action == "wasReleased"){
@@ -148,4 +219,9 @@ void GUI::_processAndDisplay(){
             break;
     }//switch
     _displayedState = _currentState;
+    //return _guiOutput;
+ //   Serial.print("index: "+(String)_guiOutput.sensorIndex+" ");
+ //   Serial.print("update: "+(String)_guiOutput.needToUpdate+" ");
+ //   Serial.print("target: "+(String)_guiOutput.newTarget+" ");
+  //  Serial.println("toggle: "+(String)_guiOutput.toggleOnOff);
 }//getNewState()
