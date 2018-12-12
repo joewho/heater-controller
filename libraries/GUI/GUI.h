@@ -75,6 +75,7 @@ void GUI::_processAndDisplay(){
             }
             break;
         case FLOOR:
+            //switch(_currentMode){
             display.updateSensorDisplay((String)_sensorInputs[0].value+ " hold-"+(String)_sensorInputs[0].target);
             
             _guiOutput.sensorIndex = 0;
@@ -90,12 +91,10 @@ void GUI::_processAndDisplay(){
                 
             }else if(_buttonInputs[0].action == "pressedFor"){
                 Serial.println("menu pressedFOR FLOOR->CAB");
-                _currentState = FLOOR_EDIT;
+                _currentState = FLOOR_TARGET;
                 display.changeDisplay(_sensorInputs[0].name+" EDIT",
                                       (String)_sensorInputs[0].value+ " hold-"+(String)_sensorInputs[0].target);
-                
-                
-                
+
             }else if(_buttonInputs[1].action == "wasReleased"){
                 Serial.println("up was released FLOOR");
                 _guiOutput.needToUpdate = true;
@@ -112,7 +111,7 @@ void GUI::_processAndDisplay(){
                 _guiOutput.toggleOnOff = true;
             }
             break;
-        case FLOOR_EDIT:
+        case FLOOR_TARGET:
             if(_buttonInputs[0].action == "isPressed"){
                 Serial.println("menu isPressed FLOOR_EDIT");
 

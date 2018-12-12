@@ -1,4 +1,8 @@
-enum states {WELCOME, FLOOR, FLOOR_EDIT, CAB, CAB_EDIT, ROOM, ROOM_EDIT, MULTI};  // states for ZONE ID and the state machine/display 
+enum states {WELCOME, FLOOR, FLOOR_TARGET, FLOOR_THRESHOLD, 
+                      CAB, CAB_TARGET, CAB_THRESHOLD, 
+                      ROOM, ROOM_TARGET, ROOM_THRESHOLD, MULTI};  // states for ZONE ID and the state machine/display 
+
+
 enum Function {HEATING, COOLING};
 
 #include "Sensor.h"
@@ -98,7 +102,6 @@ SensorMap roomAirPumpTemp{};
 
 SensorMap roomAirFinTubeTemp{};
 
-                                    
 SensorMap * mapArray[10] = {&inFloorTemp, &cabinetTemp, &roomAirTemp};
 int mapArraySize = 3;
 
