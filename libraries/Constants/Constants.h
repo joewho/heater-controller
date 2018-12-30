@@ -38,8 +38,8 @@ const byte roomRedLedPin = 9;
 const byte returnTempSensorPin = -1;
 const byte supplyTempSensorPin = -1;
 
-const byte button1Pin = 5;
-const byte button2Pin = 6;
-const byte button3Pin = 3;
-const byte button4Pin = 4;
+const byte button1Pin = 25;//5;
+const byte button2Pin = 24;//6;
+const byte button3Pin = 23;//3;
+const byte button4Pin = 22;//4;
 #endif /* Constants_h */

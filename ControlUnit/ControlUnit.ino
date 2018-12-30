@@ -1,6 +1,7 @@
-enum states {WELCOME, FLOOR, FLOOR_TARGET, FLOOR_THRESHOLD, 
-                      CAB, CAB_TARGET, CAB_THRESHOLD, 
-                      ROOM, ROOM_TARGET, ROOM_THRESHOLD, MULTI};  // states for ZONE ID and the state machine/display 
+enum states {WELCOME, FLOOR, FLOOR_TARGET, FLOOR_LOWER, FLOOR_UPPER, 
+                      CAB, CAB_TARGET, CAB_LOWER, CAB_UPPER, 
+                      ROOM, ROOM_TARGET, ROOM_LOWER, ROOM_UPPER, MULTI,
+                      RELAY_1,RELAY_2,RELAY_3,RELAY_4,RELAY_5,RELAY_6,RELAY_7};  // states for ZONE ID and the state machine/display 
 
 
 enum Function {HEATING, COOLING};
@@ -21,7 +22,7 @@ float cabTargetTempCool = -30;
 float roomTargetTemp = 60;
 float roomTargetTempCool = -30;
 
-const int threshold = 3;
+const int THRESHOLD = 3;
 
 unsigned long time_delay = 1000; //milliseconds of delay to check time
 unsigned long last_time_check = 0; //time at instance
@@ -45,6 +46,8 @@ Sensor s32("roomAirFin","TEMP", roomFinTempSensorPin);
 struct SensorMap{
   Sensor* sensor;
   float target;
+  float upperLimit;
+  float lowerLimit;
   byte actuatorPin;
   byte greenLedPin;
   byte redLedPin;
@@ -58,6 +61,8 @@ struct SensorMap{
 
 SensorMap inFloorTemp{sensor: &s10,
                   target: floorTargetTemp,
+                  upperLimit: floorTargetTemp+THRESHOLD,
+                  lowerLimit: floorTargetTemp-THRESHOLD,
                   actuatorPin: floorPumpPin,
                   greenLedPin: floorGreenLedPin,
                   redLedPin: floorRedLedPin,
@@ -72,6 +77,8 @@ SensorMap inFLoorPumpTemp{};
                   
 SensorMap cabinetTemp{sensor: &s20,
                   target: cabTargetTemp,
+                  upperLimit: cabTargetTemp+THRESHOLD,
+                  lowerLimit: cabTargetTemp-THRESHOLD,
                   actuatorPin: cabPumpPin,
                   greenLedPin: cabGreenLedPin,
                   redLedPin: cabRedLedPin,
@@ -88,6 +95,8 @@ SensorMap cabinetFinTubeTemp{};
 
 SensorMap roomAirTemp{sensor: &s30,
                   target: roomTargetTemp,
+                  upperLimit: roomTargetTemp+THRESHOLD,
+                  lowerLimit: roomTargetTemp-THRESHOLD,
                   actuatorPin: roomPumpPin,
                   greenLedPin: roomGreenLedPin,
                   redLedPin: roomRedLedPin,
@@ -137,6 +146,8 @@ GUIOutput* sendValuesToGUI(){
     sensorOutput[i].name = mapArray[i]->sensor->getName();
     sensorOutput[i].value = mapArray[i]->sensor->getValue();
     sensorOutput[i].target = mapArray[i]->target;
+    sensorOutput[i].upperLimit = mapArray[i]->upperLimit;
+    sensorOutput[i].lowerLimit = mapArray[i]->lowerLimit;
   }
     return userInterface.uploadUserInputs(sensorOutput, mapArraySize, buttonController.getButtonOutputs(), buttonController.arrayLength());
 }
@@ -144,18 +155,18 @@ GUIOutput* sendValuesToGUI(){
 void compareValuesHeating(int i){//i is index of SensorMap in mapArray
  if(mapArray[i]->zoneOn){
    if(mapArray[i]->actuatorOn){
-      if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold))
+      if(mapArray[i]->sensor->getValue() >= (mapArray[i]->upperLimit))
         mapArray[i]->toggleActuator = true;
-    }else if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold))
+    }else if(mapArray[i]->sensor->getValue() <= (mapArray[i]->lowerLimit))
         mapArray[i]->toggleActuator = true;
   }
 }
 void compareValuesCooling(int i){
   if(mapArray[i]->zoneOn){
     if(mapArray[i]->actuatorOn){
-      if(mapArray[i]->sensor->getValue() <= (mapArray[i]->target - threshold))
+      if(mapArray[i]->sensor->getValue() <= (mapArray[i]->lowerLimit))
         mapArray[i]->toggleActuator = true;
-    }else if(mapArray[i]->sensor->getValue() >= (mapArray[i]->target + threshold))
+    }else if(mapArray[i]->sensor->getValue() >= (mapArray[i]->upperLimit))
       mapArray[i]->toggleActuator = true;
   }
 }
@@ -214,9 +225,20 @@ void sendToSwitcher(GUIOutput* g){
     }
     
      if(g->needToUpdate){
-      if(!g->toggleOnOff)
+      if(!g->toggleOnOff){
         mapArray[g->sensorIndex]->target = g->newTarget;
-      else{
+        //lower limit cant be greater than target
+        if(g->newLowerLimit <= mapArray[g->sensorIndex]->target)
+          mapArray[g->sensorIndex]->lowerLimit = g->newLowerLimit;
+        else
+          mapArray[g->sensorIndex]->lowerLimit = mapArray[g->sensorIndex]->target;
+           //upper limit cant be lower than target1
+        if(g->newUpperLimit >= mapArray[g->sensorIndex]->target)
+          mapArray[g->sensorIndex]->upperLimit = g->newUpperLimit;
+        else
+          mapArray[g->sensorIndex]->upperLimit = mapArray[g->sensorIndex]->target;
+
+      }else{
         //toggleZoneOff
         mapArray[g->sensorIndex]->zoneOn = !mapArray[g->sensorIndex]->zoneOn;
         //toggleActuator
