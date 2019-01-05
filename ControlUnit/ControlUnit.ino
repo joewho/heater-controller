@@ -42,6 +42,44 @@ Sensor s30("roomAir","TEMP", roomTempSensorPin);
 Sensor s31("roomAirPump","TEMP", roomPumpTempSensorPin);
 Sensor s32("roomAirFin","TEMP", roomFinTempSensorPin);
 
+RelayMap relay1{
+  relayPin :  relay1Pin,
+  relayOn : true,
+  toggleRelay : false};
+
+RelayMap relay2{
+  relayPin :  relay2Pin,
+  relayOn : true,
+  toggleRelay : false};
+
+RelayMap relay3{
+  relayPin :  relay3Pin,
+  relayOn : false,
+  toggleRelay : false};
+
+RelayMap relay4{
+  relayPin :  relay4Pin,
+  relayOn : false,
+  toggleRelay : false};
+
+RelayMap relay5{
+  relayPin :  relay5Pin,
+  relayOn : false,
+  toggleRelay : false};
+
+RelayMap relay6{
+  relayPin :  relay6Pin,
+  relayOn : false,
+  toggleRelay : false};
+
+RelayMap relay7{
+  relayPin :  relay7Pin,
+  relayOn : false,
+  toggleRelay : false};
+
+RelayMap relayArray[7] = {&relay1, &relay2, &relay3, &relay4, &relay5, &relay6, &relay7};
+//int relayArraySize = 7;
+
 //specific to floor
 struct SensorMap{
   Sensor* sensor;
@@ -149,7 +187,7 @@ GUIOutput* sendValuesToGUI(){
     sensorOutput[i].upperLimit = mapArray[i]->upperLimit;
     sensorOutput[i].lowerLimit = mapArray[i]->lowerLimit;
   }
-    return userInterface.uploadUserInputs(sensorOutput, mapArraySize, buttonController.getButtonOutputs(), buttonController.arrayLength());
+    return userInterface.uploadUserInputs(sensorOutput, mapArraySize, buttonController.getButtonOutputs(), buttonController.arrayLength(),relayArray);
 }
 
 void compareValuesHeating(int i){//i is index of SensorMap in mapArray
@@ -223,7 +261,6 @@ void sendToSwitcher(GUIOutput* g){
       digitalWrite(mapArray[i]->redLedPin,!mapArray[i]->actuatorOn);
       mapArray[i]->toggleActuator = false;  
     }
-    
      if(g->needToUpdate){
       if(!g->toggleOnOff){
         mapArray[g->sensorIndex]->target = g->newTarget;
@@ -239,14 +276,22 @@ void sendToSwitcher(GUIOutput* g){
           mapArray[g->sensorIndex]->upperLimit = mapArray[g->sensorIndex]->target;
 
       }else{
-        //toggleZoneOff
-        mapArray[g->sensorIndex]->zoneOn = !mapArray[g->sensorIndex]->zoneOn;
-        //toggleActuator
-        mapArray[g->sensorIndex]->actuatorOn = !mapArray[g->sensorIndex]->actuatorOn;
-        digitalWrite(mapArray[g->sensorIndex]->actuatorPin,mapArray[g->sensorIndex]->actuatorOn);
-        digitalWrite(mapArray[g->sensorIndex]->greenLedPin,mapArray[g->sensorIndex]->actuatorOn);
-        digitalWrite(mapArray[g->sensorIndex]->redLedPin,!mapArray[g->sensorIndex]->actuatorOn);
-        mapArray[g->sensorIndex]->toggleActuator = false;  
+        //toggle relay power
+        if(g->isRelay){
+          relayArray[g->relayIndex].relayOn = !relayArray[g->relayIndex].relayOn;
+          digitalWrite(relayArray[g->relayIndex].relayPin, relayArray[g->relayIndex].relayOn);
+          relayArray[g->relayIndex].toggleRelay = false;  
+
+        }else{
+          //toggleZoneOff
+          mapArray[g->sensorIndex]->zoneOn = !mapArray[g->sensorIndex]->zoneOn;
+          //toggleActuator
+          mapArray[g->sensorIndex]->actuatorOn = !mapArray[g->sensorIndex]->actuatorOn;
+          digitalWrite(mapArray[g->sensorIndex]->actuatorPin, mapArray[g->sensorIndex]->actuatorOn);
+          digitalWrite(mapArray[g->sensorIndex]->greenLedPin, mapArray[g->sensorIndex]->actuatorOn);
+          digitalWrite(mapArray[g->sensorIndex]->redLedPin,!mapArray[g->sensorIndex]->actuatorOn);
+          mapArray[g->sensorIndex]->toggleActuator = false;  
+        }
       }//if(toggleOnOff)
       
     }//if(needToUpdate
