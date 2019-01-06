@@ -44,12 +44,12 @@ Sensor s32("roomAirFin","TEMP", roomFinTempSensorPin);
 
 RelayMap relay1{
   relayPin :  relay1Pin,
-  relayOn : true,
+  relayOn : false,
   toggleRelay : false};
 
 RelayMap relay2{
   relayPin :  relay2Pin,
-  relayOn : true,
+  relayOn : false,
   toggleRelay : false};
 
 RelayMap relay3{
@@ -77,7 +77,7 @@ RelayMap relay7{
   relayOn : false,
   toggleRelay : false};
 
-RelayMap relayArray[7] = {&relay1, &relay2, &relay3, &relay4, &relay5, &relay6, &relay7};
+RelayMap relayArray[7] = {relay1, relay2, relay3, relay4, relay5, relay6, relay7};
 //int relayArraySize = 7;
 
 //specific to floor
@@ -246,6 +246,24 @@ void sendToSwitcher(GUIOutput* g){
   Serial.print("target: "+(String)g->newTarget+" ");
   Serial.println("toggle: "+(String)g->toggleOnOff);
   */
+  if(g->needToUpdate){
+  Serial.println("needToUpdate: "+(String)g->needToUpdate);
+  Serial.println("isRelay: "+(String)g->isRelay);
+  Serial.println("relayIndex: "+(String)g->relayIndex);
+  Serial.println("toggleOnOff: "+(String)g->toggleOnOff);
+  Serial.println();
+    if(g->isRelay){
+            relayArray[g->relayIndex].relayOn = !relayArray[g->relayIndex].relayOn;
+            Serial.print("relay pin: ");
+            Serial.print((String)relayArray[g->relayIndex].relayPin);
+            Serial.print(" relay Status: ");
+            Serial.println((String)relayArray[g->relayIndex].relayOn);
+            digitalWrite(relayArray[g->relayIndex].relayPin, !relayArray[g->relayIndex].relayOn);
+            relayArray[g->relayIndex].toggleRelay = false;  
+    }
+  }
+/*
+  
   for(int i=0;i<mapArraySize;i++){
     if(!mapArray[i]->zoneOn){
       mapArray[i]->actuatorOn = false;
@@ -279,7 +297,11 @@ void sendToSwitcher(GUIOutput* g){
         //toggle relay power
         if(g->isRelay){
           relayArray[g->relayIndex].relayOn = !relayArray[g->relayIndex].relayOn;
-          digitalWrite(relayArray[g->relayIndex].relayPin, relayArray[g->relayIndex].relayOn);
+          Serial.print("relay# ");
+          Serial.print((String)relayArray[g->relayIndex].relayPin);
+          Serial.print(" ");
+          Serial.println((String)relayArray[g->relayIndex].relayOn);
+          digitalWrite(relayArray[g->relayIndex].relayPin, !relayArray[g->relayIndex].relayOn);
           relayArray[g->relayIndex].toggleRelay = false;  
 
         }else{
@@ -296,7 +318,7 @@ void sendToSwitcher(GUIOutput* g){
       
     }//if(needToUpdate
   }
-
+*/
   
 }//sendToSwitcher()
 
@@ -304,8 +326,34 @@ bool firstRun;
 GUIOutput* guiOutput;
 
 void setup() {
+  //digitalWrite(33,HIGH);
+  //delay(3000);
   Serial.begin(9600);
   lcd.begin(16,2);
+
+  pinMode(relay1Pin, OUTPUT);
+  pinMode(relay2Pin, OUTPUT);
+  pinMode(relay3Pin, OUTPUT);
+  pinMode(relay4Pin, OUTPUT);
+  pinMode(relay5Pin, OUTPUT);
+  pinMode(relay6Pin, OUTPUT);
+  pinMode(relay7Pin, OUTPUT);
+  /*digitalWrite(33,LOW);
+  digitalWrite(31,LOW);
+  delay(3000);
+  digitalWrite(33,HIGH);
+  digitalWrite(31,HIGH);
+  
+  
+  digitalWrite(relay1Pin,HIGH);
+  digitalWrite(relay2Pin,HIGH);
+  digitalWrite(relay3Pin,HIGH);
+  digitalWrite(relay4Pin,HIGH);
+  digitalWrite(relay5Pin,HIGH);
+  digitalWrite(relay6Pin,HIGH);
+  digitalWrite(relay7Pin,HIGH);
+  */
+  
   pinMode(floorRedLedPin,OUTPUT);
   pinMode(floorGreenLedPin,OUTPUT);
   
@@ -332,7 +380,9 @@ void setup() {
 //    getNewValues();
 }
 void loop() {
+  //must initialize relay power ouput
 
+  
   buttonController.listening();
   //Serial.print(buttonController.toStringPretty());
   
