@@ -8,35 +8,10 @@
 #ifndef Constants_h
 #define Constants_h
 
-
-const byte floorTempSensorPin = -1;
-const byte floorPumpPin = 7;
-const byte floorPumpTempSensorPin = -1;
-const byte floorFlowSensorPin = -1;
-const byte floorGreenLedPin = 10;
-const byte floorRedLedPin = 7;
-
-const byte cabTempSensorPin = -1;
-const byte cabPumpPin= 8;
-const byte cabPumpTempSensorPin = -1;
-const byte cabFinTempSensorPin = -1;
-const byte cabFanPin = -1;
-const byte cabFlowSensorPin = -1;
-const byte cabGreenLedPin = 11;
-const byte cabRedLedPin = 8;
-
-const byte roomTempSensorPin = -1;
-const byte roomPumpPin = 9;
-const byte roomPumpTempSensorPin = -1;
-const byte roomFinTempSensorPin = -1;
-const byte roomFanPin = -1;
-const byte roomFlowSensorPin = -1;
-const byte roomGreenLedPin = 13;
-const byte roomRedLedPin = 9;
-
-
-const byte returnTempSensorPin = -1;
-const byte supplyTempSensorPin = -1;
+enum states {WELCOME, FLOOR, FLOOR_TARGET, FLOOR_LOWER, FLOOR_UPPER,
+    CAB, CAB_TARGET, CAB_LOWER, CAB_UPPER,
+    ROOM, ROOM_TARGET, ROOM_LOWER, ROOM_UPPER, MULTI,
+    RELAY_1,RELAY_2,RELAY_3,RELAY_4,RELAY_5,RELAY_6,RELAY_7};  // states for ZONE ID and the state machine/display
 
 const byte button1Pin = 25;//5;
 const byte button2Pin = 24;//6;
@@ -50,4 +25,5 @@ const byte relay4Pin = 34;
 const byte relay5Pin = 35;
 const byte relay6Pin = 36;
 const byte relay7Pin = 37;
+
 #endif /* Constants_h */

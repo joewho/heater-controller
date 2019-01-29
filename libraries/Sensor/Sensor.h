@@ -11,12 +11,13 @@
 class Sensor{
 private:
     String _name;
-    String _type;
+    String _type; //only allowed: TEMP || PRESSURE
     int _pin;
     float _value;
 public:
     Sensor(){_name="EMPTY"; _type = "NONE"; _pin = -1; _value = -8;}
     Sensor(String name, String type, int pin):_name(name), _type(type), _pin(pin){_value = -8;}
+    //~Sensor();
     
     String getName(){return _name;}
     void setName(String s){_name = s;}
@@ -31,6 +32,10 @@ public:
     //just returns the currrent value of _value
     float getValue(){return _value;}
     void setValue(float f){_value = f;}
+    
+    //use this for probing sensors for current reading
+    //calculate temp and set to _value
+    void read(){}
     
     //input value is for testing purposes only
     //input should be -1 or +1 depending on heating or cooling at the moment
