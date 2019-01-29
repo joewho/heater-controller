@@ -1,16 +1,17 @@
-enum states {WELCOME, FLOOR, FLOOR_TARGET, FLOOR_LOWER, FLOOR_UPPER, 
+/*enum states {WELCOME, FLOOR, FLOOR_TARGET, FLOOR_LOWER, FLOOR_UPPER, 
                       CAB, CAB_TARGET, CAB_LOWER, CAB_UPPER, 
                       ROOM, ROOM_TARGET, ROOM_LOWER, ROOM_UPPER, MULTI,
                       RELAY_1,RELAY_2,RELAY_3,RELAY_4,RELAY_5,RELAY_6,RELAY_7};  // states for ZONE ID and the state machine/display 
 
 
 enum Function {HEATING, COOLING};
-
+*/
+#include "Constants.h"
 #include "Sensor.h"
 #include "ButtonController2.h"
 #include "GUI.h"
 //#include Driver
-#include "Constants.h"
+
 
 
 float floorTargetTemp = 88;
@@ -208,7 +209,7 @@ void compareValuesCooling(int i){
       mapArray[i]->toggleActuator = true;
   }
 }
-
+  w32e4
 void compareValues(){
   
   for(int i=0;i<mapArraySize;i++){
