@@ -15,18 +15,18 @@ private:
     int _pin;
     float _value;
 public:
-    Sensor(){_name="EMPTY"; _type = "NONE"; _pin = -1; _value = -8;}
+    Sensor(){_name="EMPTY"; _type = "NONE"; _pin = 100; _value = -8;}
     Sensor(String name, String type, int pin):_name(name), _type(type), _pin(pin){_value = -8;}
     //~Sensor();
     
     String getName(){return _name;}
-    void setName(String s){_name = s;}
+    //void setName(String s){_name = s;}
     
-    String getType(){return _type;}
-    void setType(String s){_type = s;}
+    //String getType(){return _type;}
+    //void setType(String s){_type = s;}
     
     int getPin(){return _pin;}
-    void setPin(int  i){_pin = i;}
+    //void setPin(int  i){_pin = i;}
     
     //doesnt cause the sensor to read the value of the pin
     //just returns the currrent value of _value

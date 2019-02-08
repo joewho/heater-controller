@@ -31,8 +31,8 @@ public:
     void addButton(String name, int pin);//create ButtonListener, ButtonTalker and Button from inputs
     //ButtonOutput * getButtonOutputs(); //
     ButtonOutput * getButtonOutputs();
-    String toString(); //prep string of member values for serial print
-    String toStringPretty();
+  //  String toString(); //prep string of member values for serial print
+  //  String toStringPretty();
     ButtonListener * getListener(int index){
         Serial.println(_listenerArr[index].toString());
         return &_listenerArr[index];
@@ -76,7 +76,7 @@ ButtonOutput * ButtonController2::getButtonOutputs(){
     }
     return _output;
 }
-
+/*
 String ButtonController2::toStringPretty(){
     String str;
 //    str += "ButtonController-toString() listenerArray:\n";
@@ -116,5 +116,5 @@ String ButtonController2::toString(){
     }
     return str;
 }
-
+*/
 

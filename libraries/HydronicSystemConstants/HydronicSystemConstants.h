@@ -10,46 +10,60 @@
 
 //enum Function {HEATING, COOLING};
 
-const byte floorTempSensorPin = -1;
-const byte floorPumpPin = 7;
-const byte floorReturnTempSensorPin = -1;
-const byte floorControlValvePin = -1;
-const byte floorBackflowValvePin = -1;
-//const byte floorPumpTempSensorPin = -1;
-//const byte floorFlowSensorPin = -1;
+const byte floorTempSensorPin PROGMEM = 100;
+const byte floorPumpPin PROGMEM = 7;
+const byte floorReturnTempSensorPin PROGMEM = 100;
+const byte floorControlValvePin PROGMEM = 2;
+const byte floorBackflowValvePin PROGMEM = 100;
+//const byte floorPumpTempSensorPin = 100;
+//const byte floorFlowSensorPin = 100;
 //const byte floorGreenLedPin = 10;
 //const byte floorRedLedPin = 7;
 
-const byte cabTempSensorPin = -1;
-const byte cabPumpPin= 8;
-const byte cabFinTempSensorPin = -1;
-const byte cabFinFanPin = -1;
-const byte cabReturnTempSensorPin = -1;
-const byte cabControlValvePin = -1;
-const byte cabBackflowValvePin = -1;
-//const byte cabPumpTempSensorPin = -1;
-//const byte cabFlowSensorPin = -1;
+const byte cabTempSensorPin PROGMEM = 100;
+const byte cabPumpPin PROGMEM = 8;
+const byte cabFinTempSensorPin PROGMEM = 100;
+const byte cabFinFanPin PROGMEM = 100;
+const byte cabReturnTempSensorPin PROGMEM = 100;
+const byte cabControlValvePin PROGMEM = 3;
+const byte cabBackflowValvePin PROGMEM = 100;
+//const byte cabPumpTempSensorPin = 100;
+//const byte cabFlowSensorPin = 100;
 //const byte cabGreenLedPin = 11;
 //const byte cabRedLedPin = 8;
 
-const byte roomTempSensorPin = -1;
-const byte roomPumpPin = 9;
-const byte roomFinTempSensorPin = -1;
-const byte roomFinFanPin = -1;
-const byte roomCircFanPin = -1;
-const byte roomReturnTempSensorPin = -1;
-const byte roomControlValvePin = -1;
-const byte roomBackflowValvePin = -1;
-//const byte roomPumpTempSensorPin = -1;
-//const byte roomFlowSensorPin = -1;
+const byte roomTempSensorPin PROGMEM = 100;
+const byte roomPumpPin PROGMEM = 9;
+const byte roomFinTempSensorPin PROGMEM = 100;
+const byte roomFinFanPin PROGMEM = 100;
+const byte roomCircFanPin PROGMEM = 100;
+const byte roomReturnTempSensorPin PROGMEM = 100;
+const byte roomControlValvePin PROGMEM = 4;
+const byte roomBackflowValvePin PROGMEM = 100;
+//const byte roomPumpTempSensorPin = 100;
+//const byte roomFlowSensorPin = 100;
 //const byte roomGreenLedPin = 13;
 //const byte roomRedLedPin = 9;
 
 
-const byte supplyTempSensorPin = -1;
-const byte mainPumpPressureSensorPin = -1;
-const byte mainPumpPin = -1;
-const byte secondaryPumpPin = -1;
-const byte secondaryPumpBypassValvePin = -1;
+const byte supplyTempSensorPin PROGMEM = 100;
+const byte mainPumpPressureSensorPin PROGMEM = 100;
+const byte mainPumpPin PROGMEM = 100;
+const byte secondaryPumpPin PROGMEM = 100;
+const byte secondaryPumpBypassValvePin PROGMEM = 100;
+
+const String zoneOff  = "zone Off";
+const String zoneOK  = "zone Ok";
+const String zoneRising  = "zone Rising OK";
+const String zoneFalling  = "zone Falling OK";
+const String zoneCold  = "zone Cold";
+const String zoneHot  = "zone Hot";
+const String zoneColdAlarm = "zone TOO COLD";
+const String zoneHotAlarm = "zone TOO HOT";
+
+
+
+
+
 
 #endif /* HydronicSystemConstants_h */

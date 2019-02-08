@@ -12,7 +12,17 @@ enum Function {HEATING, COOLING};
 #include "GUI.h"
 //#include Driver
 
+//battery charger
+const byte battery1 = 5;
+const byte battery2 = 6;
+const byte battery3 = 7;
+const byte battery4 = 8;
+const byte batteryCount = 4;
+const int  chargingTimer = 1500; //ms of time to induce charge on battery
+unsigned long batteryTimeCheck = 0;
 
+byte* batteryBank[] = {battery1,battery2,battery3,battery4};
+//end battery charger
 
 float floorTargetTemp = 88;
 float floorTargetTempCool = -30;
@@ -339,6 +349,12 @@ void setup() {
   pinMode(relay5Pin, OUTPUT);
   pinMode(relay6Pin, OUTPUT);
   pinMode(relay7Pin, OUTPUT);
+  //battery charger
+  pinMode(battery1,OUTPUT);
+  pinMode(battery2,OUTPUT);
+  pinMode(battery3,OUTPUT);
+  pinMode(battery4,OUTPUT);
+  //end battery charger
   /*digitalWrite(33,LOW);
   digitalWrite(31,LOW);
   delay(3000);
@@ -396,5 +412,15 @@ void loop() {
     last_time_check = current_time;
     getNewValues();
   }
+  for(int i=0;i<batteryCount;i++){
+    current_time = millis();
+    digitalWrite(batteryBank[i],HIGH);
+    //delay(chargingTimer);
+    if((current_time - batteryTimeCheck)>= chargingTimer){
+      batteryTimeCheck = current_time;
+      digitalWrite(batteryBank[i],LOW);
+    }
+  }
+
   
 }

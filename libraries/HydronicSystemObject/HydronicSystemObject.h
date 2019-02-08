@@ -17,6 +17,7 @@
 float floorTargetTemp = 88; //default floor zone target temp
 float cabinetTargetTemp = 55; //default cabinet zone target temp
 float roomTargetTemp = 60; //default room zone target temp
+float finTargetTemp = roomTargetTemp;
 int defaultThreshold = 3; //default number of degrees used for upper and lower limits of target temp
 
 //instantiate sensors
@@ -36,7 +37,7 @@ ZoneGroup floorZone, cabinetZone, roomZone;
 
 class HydronicSystemObject{
 private:
-    ZoneGroup* _zonesGroups[3];
+    ZoneGroup* _zoneGroups[3];
     int _zoneCount;
     Actuator _secondaryPump;
     Actuator _secondaryPumpBypassValve;
@@ -44,30 +45,22 @@ private:
     bool _systemRunning;
     bool _alarmState;
     String _alarmMessage;
+    unsigned long _startTime;
     unsigned long _runningTime;
     Sensor* _sensorArray[9];
     int _sensorCount;
     
-    //SensorMessage* _getAllSensorValues();
-    //ActuatorMessage* _getAllActuatorValues();
     void _analyzeSensorReading(int);
     void _mimicSensorRead(int);
-    
+
 public:
     HydronicSystemObject(){
-        //_zonesGroups = NULL;
         _zoneCount = 0;
-        //_secondaryPump = NULL;
-        //_secondaryPumpBypassValve = NULL;
-        //_waterSupplyTemp = NULL;
         _systemRunning = false;
         _alarmState = false;
-        _runningTime = 0;
+        _startTime = millis();
+        _runningTime = millis() - _startTime;
         
-        //save memory
-        //delete secondaryPump;
-        //delete secondaryPumpBypassValve;
-        //delete pumpPressure;
     }
     
     void initiate();
@@ -76,31 +69,39 @@ public:
     void stop();
     void kill();
     void editSettings();
-    /*
-    string* getSystemStatus(); //outputs string array full of sensor/actuator/value of member functions && specific zone values
-    string* getSystemZoneData(); //outputs string array full of all zoneGroup data
-    string* getSystemZoneData(int index); //ouputs string array of one zoneGroup
-    */
+    unsigned long getRunningTime(){
+        _runningTime = millis() - _startTime;
+        return _runningTime;
+    }
+
 };
 
-//SensorMessage* HydronicSystemObject::_getAllSensorValues(){}
-
-//ActuatorMessage* HydronicSystemObject::_getAllActuatorValues(){}
 void HydronicSystemObject::_mimicSensorRead(int index){
+    /*
+     _sensorArray[0] = &floorZone.zoneTemp;
+     _sensorArray[1] = &floorZone.returnWaterTemp;
+     _sensorArray[2] = &cabinetZone.zoneTemp;
+     _sensorArray[3] = &cabinetZone.finTemp;
+     _sensorArray[4] = &cabinetZone.returnWaterTemp;
+     _sensorArray[5] = &roomZone.zoneTemp;
+     _sensorArray[6] = &roomZone.finTemp;
+     _sensorArray[7] = &roomZone.returnWaterTemp;
+     _sensorArray[8] = &waterSupplyTemp;
+     */
     switch(index){
         case 0: //floor zone temp
-            if(floorZone.waterFlowOpen)
-                _sensorArray[index]->read(1);
+            if(_zoneGroups[0]->waterFlowOpen)//(floorZone.waterFlowOpen)
+                _zoneGroups[0]->zoneTemp.read(1);
             else
-                _sensorArray[index]->read(-1);
+                _zoneGroups[0]->zoneTemp.read(-1);
             break;
         case 1:
             break;
         case 2://cabinet zone temp
             if(cabinetZone.waterFlowOpen)
-                _sensorArray[index]->read(1);
+                _zoneGroups[1]->zoneTemp.read(1);
             else
-                _sensorArray[index]->read(-1);
+                _zoneGroups[1]->zoneTemp.read(-1);
             break;
         case 3:
             break;
@@ -108,9 +109,9 @@ void HydronicSystemObject::_mimicSensorRead(int index){
             break;
         case 5: //room zone temp
             if(roomZone.waterFlowOpen)
-                _sensorArray[index]->read(1);
+                _zoneGroups[2]->zoneTemp.read(1);
             else
-                _sensorArray[index]->read(-1);
+                _zoneGroups[2]->zoneTemp.read(-1);
             break;
         case 6:
             break;
@@ -119,61 +120,75 @@ void HydronicSystemObject::_mimicSensorRead(int index){
         case 8:
             break;
     }
+    
 }
 void HydronicSystemObject::_analyzeSensorReading(int index){
     /*
-     _sensorArray[0] = &floorZoneTemp;
-     _sensorArray[1] = &floorReturnTemp;
-     _sensorArray[2] = &cabinetZoneTemp;
-     _sensorArray[3] = &cabinetFinTemp;
-     _sensorArray[4] = &cabinetReturnTemp;
-     _sensorArray[5] = &roomZoneTemp;
-     _sensorArray[6] = &roomFinTemp;
-     _sensorArray[7] = &roomReturnTemp;
+     _sensorArray[0] = &floorZone.zoneTemp;
+     _sensorArray[1] = &floorZone.returnWaterTemp;
+     _sensorArray[2] = &cabinetZone.zoneTemp;
+     _sensorArray[3] = &cabinetZone.finTemp;
+     _sensorArray[4] = &cabinetZone.returnWaterTemp;
+     _sensorArray[5] = &roomZone.zoneTemp;
+     _sensorArray[6] = &roomZone.finTemp;
+     _sensorArray[7] = &roomZone.returnWaterTemp;
      _sensorArray[8] = &waterSupplyTemp;
      */
     
     float sensorValue = _sensorArray[index]->getValue();
-
+    
     //input index is reference to the _sensorArray
     switch(index){
         case 0: //floor zone temp
-            Serial.print("SensorIndex: "+(String)index);
-            Serial.println(" SensorValue: "+(String)sensorValue);
             //check if zone control is turned off
+
             if(!floorZone.zoneControlOn){
-                Serial.println("FLOOR OFF");
+                //Serial.println("FLOOR OFF");
                 //turn off all valves, set waterFLow false, set alarmState false
-                floorZone.controlValve->setPowerOn(false);
-                floorZone.backflowValve->setPowerOn(false);
+                floorZone.controlValve.setPowerOn(false);
+                floorZone.backflowValve.setPowerOn(false);
                 floorZone.waterFlowOpen = false;
                 floorZone.alarmState = false;
-                floorZone.alarmMessage = "empty";
+                floorZone.alarmMessage = zoneOff;
             }else{ //zone control is on
-                 if(sensorValue < floorZone.lowTemp){
-                     Serial.println("FLOOR LOW");
+                if(sensorValue >= floorZone.lowTemp && sensorValue <= floorZone.highTemp){
+                    floorZone.alarmState = false;
+                    if(floorZone.waterFlowOpen)
+                        floorZone.alarmMessage = zoneRising;
+                    else
+                        floorZone.alarmMessage = zoneFalling;
+                }
+                 else if(sensorValue < floorZone.lowTemp){
+                     //Serial.println("FLOOR LOW");
                     //turn on heat
-                    floorZone.controlValve->setPowerOn(true);
-                    floorZone.backflowValve->setPowerOn(true);
+                    floorZone.controlValve.setPowerOn(true);
+                    floorZone.backflowValve.setPowerOn(true);
                     floorZone.waterFlowOpen = true;
+                    
+                    floorZone.alarmState = false;
+                    floorZone.alarmMessage = zoneCold;
                     //if less than alarm temp turn on alarm if not turn alarm off
                     if(sensorValue < floorZone.alarmLowTemp){
-                        Serial.println("FLOOR ALARM LOW");
+                        //Serial.println("FLOOR ALARM LOW");
                         floorZone.alarmState = true;
-                        floorZone.alarmMessage = "Floor Zone too Cold";
+                        //_alarmState = true;
+                        floorZone.alarmMessage = zoneColdAlarm;
+                       // _alarmMessage = floorZone.alarmMessage
                     }
                 }
                 else if(sensorValue > floorZone.highTemp){
-                    Serial.println("FLOOR HIGH");
+                    //Serial.println("FLOOR HIGH");
                     //turn off heat
-                    floorZone.controlValve->setPowerOn(false);
-                    floorZone.backflowValve->setPowerOn(false);
+                    floorZone.controlValve.setPowerOn(false);
+                    floorZone.backflowValve.setPowerOn(false);
                     floorZone.waterFlowOpen = false;
+                    floorZone.alarmState = false;
+                    floorZone.alarmMessage = zoneHot;
                     //if higher than alarm temp turn on alarm if not turn alarm off
                     if(sensorValue > floorZone.alarmHighTemp){
-                        Serial.println("FLOOR ALARM HIGH");
+                        //Serial.println("FLOOR ALARM HIGH");
                         floorZone.alarmState = true;
-                        floorZone.alarmMessage = "Floor Zone too Hot";
+                        floorZone.alarmMessage = zoneHotAlarm;
                     }
                 }
             }
@@ -181,42 +196,51 @@ void HydronicSystemObject::_analyzeSensorReading(int index){
         case 1: //floor return water temp
             break;
         case 2: //cabinet zone temp
-            Serial.print("SensorIndex: "+(String)index);
-            Serial.println(" SensorValue: "+(String)sensorValue);
             //check if zone control is turned off
             if(!cabinetZone.zoneControlOn){
-                Serial.println("CABINET OFF");
+                //Serial.println("CABINET OFF");
                 //turn off all valves, set waterFLow false, set alarmState false
-                cabinetZone.controlValve->setPowerOn(false);
-                cabinetZone.backflowValve->setPowerOn(false);
+                cabinetZone.controlValve.setPowerOn(false);
+                cabinetZone.backflowValve.setPowerOn(false);
                 cabinetZone.waterFlowOpen = false;
                 cabinetZone.alarmState = false;
                 cabinetZone.alarmMessage = "empty";
             }else{ //zone control is on
-                if(sensorValue < cabinetZone.lowTemp){
-                    Serial.println("Cabinet LOW");
+                if(sensorValue >= cabinetZone.lowTemp && sensorValue <= cabinetZone.highTemp){
+                    cabinetZone.alarmState = false;
+                    if(cabinetZone.waterFlowOpen)
+                        cabinetZone.alarmMessage = zoneRising;
+                    else
+                        cabinetZone.alarmMessage = zoneFalling;
+                }
+                else if(sensorValue < cabinetZone.lowTemp){
+                    //Serial.println("Cabinet LOW");
                     //turn on heat
-                    cabinetZone.controlValve->setPowerOn(true);
-                    cabinetZone.backflowValve->setPowerOn(true);
+                    cabinetZone.controlValve.setPowerOn(true);
+                    cabinetZone.backflowValve.setPowerOn(true);
                     cabinetZone.waterFlowOpen = true;
+                    cabinetZone.alarmState = false;
+                    cabinetZone.alarmMessage = zoneCold;
                     //if less than alarm temp turn on alarm if not turn alarm off
                     if(sensorValue < cabinetZone.alarmLowTemp){
-                        Serial.println("Cabinet ALARM LOW");
+                        //Serial.println("Cabinet ALARM LOW");
                         cabinetZone.alarmState = true;
-                        cabinetZone.alarmMessage = "Cabinet Zone too Cold";
+                        cabinetZone.alarmMessage = zoneColdAlarm;
                     }
                 }
                 else if(sensorValue > cabinetZone.highTemp){
-                    Serial.println("Cabinet HIGH");
+                    //Serial.println("Cabinet HIGH");
                     //turn off heat
-                    cabinetZone.controlValve->setPowerOn(false);
-                    cabinetZone.backflowValve->setPowerOn(false);
+                    cabinetZone.controlValve.setPowerOn(false);
+                    cabinetZone.backflowValve.setPowerOn(false);
                     cabinetZone.waterFlowOpen = false;
+                    cabinetZone.alarmState = false;
+                    cabinetZone.alarmMessage = zoneHot;
                     //if higher than alarm temp turn on alarm if not turn alarm off
                     if(sensorValue > cabinetZone.alarmHighTemp){
-                        Serial.println("Cabinet ALARM HIGH");
+                        //Serial.println("Cabinet ALARM HIGH");
                         cabinetZone.alarmState = true;
-                        cabinetZone.alarmMessage = "Cabinet Zone too Hot";
+                        cabinetZone.alarmMessage = zoneHotAlarm;
                     }
                 }
             }
@@ -226,44 +250,52 @@ void HydronicSystemObject::_analyzeSensorReading(int index){
         case 4: //cabinet return water temp
             break;
         case 5: //room zone temp
-            Serial.print("SensorIndex: "+(String)index);
-            Serial.println(" SensorValue: "+(String)sensorValue);
             //check if zone control is turned off
             if(!roomZone.zoneControlOn){
-                Serial.println("ROOM OFF");
+                //Serial.println("ROOM OFF");
                 //turn off all valves, set waterFLow false, set alarmState false
-                roomZone.controlValve->setPowerOn(false);
-                roomZone.backflowValve->setPowerOn(false);
+                roomZone.controlValve.setPowerOn(false);
+                roomZone.backflowValve.setPowerOn(false);
                 roomZone.waterFlowOpen = false;
                 roomZone.alarmState = false;
                 roomZone.alarmMessage = "empty";
             }else{ //zone control is on
-                if(sensorValue < roomZone.lowTemp){
-                    Serial.println("Room LOW");
-
+                if(sensorValue >= roomZone.lowTemp && sensorValue <= roomZone.highTemp){
+                    roomZone.alarmState = false;
+                    if(roomZone.waterFlowOpen)
+                        roomZone.alarmMessage = zoneRising;
+                    else
+                        roomZone.alarmMessage = zoneFalling;
+                }
+                else if(sensorValue < roomZone.lowTemp){
+                    //Serial.println("Room LOW");
                     //turn on heat
-                    roomZone.controlValve->setPowerOn(true);
-                    roomZone.backflowValve->setPowerOn(true);
+                    roomZone.controlValve.setPowerOn(true);
+                    roomZone.backflowValve.setPowerOn(true);
                     roomZone.waterFlowOpen = true;
+                    roomZone.alarmState = false;
+                    roomZone.alarmMessage = zoneCold;
                     //if less than alarm temp turn on alarm if not turn alarm off
                     if(sensorValue < roomZone.alarmLowTemp){
-                        Serial.println("Room ALARM LOW");
+                        //Serial.println("Room ALARM LOW");
                         roomZone.alarmState = true;
-                        roomZone.alarmMessage = "Room Zone too Cold";
+                        roomZone.alarmMessage = zoneColdAlarm;
                     }
                 }
                 else if(sensorValue > roomZone.highTemp){
-                    Serial.println("Room HIGH");
+                    //Serial.println("Room HIGH");
 
                     //turn off heat
-                    roomZone.controlValve->setPowerOn(false);
-                    roomZone.backflowValve->setPowerOn(false);
+                    roomZone.controlValve.setPowerOn(false);
+                    roomZone.backflowValve.setPowerOn(false);
                     roomZone.waterFlowOpen = false;
+                    roomZone.alarmState = false;
+                    roomZone.alarmMessage = zoneHot;
                     //if higher than alarm temp turn on alarm if not turn alarm off
                     if(sensorValue > roomZone.alarmHighTemp){
-                        Serial.println("Room ALARM HIGH");
+                        //Serial.println("Room ALARM HIGH");
                         roomZone.alarmState = true;
-                        roomZone.alarmMessage = "Room Zone too Hot";
+                        roomZone.alarmMessage = zoneHotAlarm;
                     }
                 }
             }
@@ -275,39 +307,75 @@ void HydronicSystemObject::_analyzeSensorReading(int index){
         case 8: //water supply tmep
             break;
     }
-    
 }
 
 void HydronicSystemObject::initiate(){
     //instatialize temp Sensors
     Sensor floorZoneTemp("Floor","TEMP",floorTempSensorPin);
-    Sensor floorReturnTemp("FloorReturn","TEMP",floorReturnTempSensorPin);
+    pinMode(floorTempSensorPin,INPUT);
     
+    Sensor floorReturnTemp("FloorReturn","TEMP",floorReturnTempSensorPin);
+    pinMode(floorReturnTempSensorPin,INPUT);
+
     Sensor cabinetZoneTemp("Cab","TEMP",cabTempSensorPin);
+    pinMode(cabTempSensorPin,INPUT);
+
     Sensor cabinetFinTemp("CabFin","TEMP",cabFinTempSensorPin);
+    pinMode(cabFinTempSensorPin,INPUT);
+
     Sensor cabinetReturnTemp("CabReturn","TEMP",cabReturnTempSensorPin);
+    pinMode(cabReturnTempSensorPin,INPUT);
     
     Sensor roomZoneTemp("Room","TEMP",roomTempSensorPin);
+    pinMode(roomTempSensorPin,INPUT);
+    
     Sensor roomFinTemp("RoomFin","TEMP",roomFinTempSensorPin);
+    pinMode(roomFinTempSensorPin,INPUT);
+    
     Sensor roomReturnTemp("RoomReturn","TEMP",roomReturnTempSensorPin);
+    pinMode(roomReturnTempSensorPin,INPUT);
     
     Sensor waterSupplyTemp("WaterSupply","TEMP",supplyTempSensorPin);
+    pinMode(supplyTempSensorPin,INPUT);
+    
+    Sensor falseSensor("falseSensor","TEMP",100);
+    
     
     //instatialize Actuators
     Actuator secondaryPump("SecondaryPump","PUMP",secondaryPumpPin,false);
+    pinMode(secondaryPumpPin,OUTPUT);
+    
     Actuator secondaryPumpBypassValve("SecondaryPumpBypass","SELENOID", secondaryPumpBypassValvePin,false);
+    pinMode(secondaryPumpBypassValvePin,OUTPUT);
     
     Actuator floorControlValve("floorControlValve","SELENOID",floorControlValvePin,false);
+    pinMode(floorControlValvePin,OUTPUT);
+    
     Actuator floorBackflowValve("floorBackflowValve","SELENOID",floorBackflowValvePin,false);
+    pinMode(floorBackflowValvePin,OUTPUT);
     
     Actuator cabinetControlValve("cabControlValve","SELENOID",cabControlValvePin,false);
+    pinMode(cabControlValvePin,OUTPUT);
+    
     Actuator cabinetBackflowValve("cabBackFlowValve","SELENOID",cabBackflowValvePin,false);
+    pinMode(cabBackflowValvePin,OUTPUT);
+    
     Actuator cabinetFinFan("cabFinFan","FAN",cabFinFanPin,false);
+    pinMode(cabFinFanPin,OUTPUT);
     
     Actuator roomControlValve("roomControlValve","SELENOID",roomControlValvePin,false);
+    pinMode(roomControlValvePin,OUTPUT);
+    
     Actuator roomBackflowValve("roomBackflowValve","SELENOID",roomBackflowValvePin,false);
+    pinMode(roomBackflowValvePin,OUTPUT);
+    
     Actuator roomFinFan("roomFinFan","FAN",roomFinFanPin,false);
+    pinMode(roomFinFanPin,OUTPUT);
+    
     Actuator roomCircFan("roomCircFan","FAN",roomCircFanPin,false);
+    pinMode(roomCircFanPin,OUTPUT);
+    
+    Actuator falseActuator("falseActuator","FAN",100,false);
     
     //instatialize ZoneGroups
     floorZone = {
@@ -317,19 +385,19 @@ void HydronicSystemObject::initiate(){
     highTemp: floorTargetTemp + defaultThreshold, //float value
     alarmLowTemp: floorTargetTemp - (2 * defaultThreshold), //float value
     alarmHighTemp: floorTargetTemp + (2 * defaultThreshold), //float value
-    controlValve: &floorControlValve, //Actuator
-    backflowValve: &floorBackflowValve, //Actuator
-    circFan: NULL, //Actuator
-    finFan: NULL, //Actuator
-    finTemp: NULL, //Sensor
-    returnWaterTemp: &floorReturnTemp, //Sensor
-    zoneTemp: &floorZoneTemp, //Sensor
+    targetFinTemp: finTargetTemp,
+    controlValve: floorControlValve, //Actuator
+    backflowValve: floorBackflowValve, //Actuator
+    circFan: falseActuator, //Actuator
+    finFan: falseActuator, //Actuator
+    finTemp: falseSensor, //Sensor
+    returnWaterTemp: floorReturnTemp, //Sensor
+    zoneTemp: floorZoneTemp, //Sensor
         //   waterFlowTimer: &floorTimer, //Timer
     waterFlowOpen: false, //bool
-    toggleWaterFlow: false, //bool
     zoneControlOn: true, //bool
-    alarmState: false,
-    alarmMessage: "empty"
+    alarmState: false,//bool
+    alarmMessage: "empty"//string
     };
     
     cabinetZone = {
@@ -339,19 +407,19 @@ void HydronicSystemObject::initiate(){
     highTemp: cabinetTargetTemp + defaultThreshold, //float value
     alarmLowTemp: cabinetTargetTemp - (2 * defaultThreshold), //float value
     alarmHighTemp: cabinetTargetTemp + (2 * defaultThreshold), //float value
-    controlValve: &cabinetControlValve, //Actuator
-    backflowValve: &cabinetBackflowValve, //Actuator
-    circFan: NULL, //Actuator
-    finFan: &cabinetFinFan, //Actuator
-    finTemp: &cabinetFinTemp, //Sensor
-    returnWaterTemp: &cabinetReturnTemp, //Sensor
-    zoneTemp: &cabinetZoneTemp, //Sensor
+    targetFinTemp: finTargetTemp,
+    controlValve: cabinetControlValve, //Actuator
+    backflowValve: cabinetBackflowValve, //Actuator
+    circFan: falseActuator, //Actuator
+    finFan: cabinetFinFan, //Actuator
+    finTemp: cabinetFinTemp, //Sensor
+    returnWaterTemp: cabinetReturnTemp, //Sensor
+    zoneTemp: cabinetZoneTemp, //Sensor
         //   waterFlowTimer: &cabinetTimer, //Timer
     waterFlowOpen: false, //bool
-    toggleWaterFlow: false, //bool
     zoneControlOn: true, //bool
-    alarmState: false,
-    alarmMessage: "empty" //bool
+    alarmState: false,//bool
+    alarmMessage: "empty"//string
     };
     
     roomZone = {
@@ -361,69 +429,74 @@ void HydronicSystemObject::initiate(){
     highTemp: roomTargetTemp + defaultThreshold, //float value
     alarmLowTemp: roomTargetTemp - (2 * defaultThreshold), //float value
     alarmHighTemp: roomTargetTemp + (2 * defaultThreshold), //float value
-    controlValve: &roomControlValve, //Actuator
-    backflowValve: &roomBackflowValve, //Actuator
-    circFan: &roomCircFan, //Actuator
-    finFan: &roomFinFan, //Actuator
-    finTemp: &roomFinTemp, //Sensor
-    returnWaterTemp: &roomReturnTemp, //Sensor
-    zoneTemp: &roomZoneTemp, //Sensor
+    targetFinTemp: finTargetTemp,
+    controlValve: roomControlValve, //Actuator
+    backflowValve: roomBackflowValve, //Actuator
+    circFan: roomCircFan, //Actuator
+    finFan: roomFinFan, //Actuator
+    finTemp: roomFinTemp, //Sensor
+    returnWaterTemp: roomReturnTemp, //Sensor
+    zoneTemp: roomZoneTemp, //Sensor
         //   waterFlowTimer: &roomTimer, //Timer
     waterFlowOpen: false, //bool
-    toggleWaterFlow: false, //bool
     zoneControlOn: true, //bool
-    alarmState: false,
-    alarmMessage: "empty" //bool
+    alarmState: false, //bool
+    alarmMessage: "empty" //string
     };
     
     //set member functions
-    _zonesGroups[0] = &floorZone;
-    _zonesGroups[1] = &cabinetZone;
-    _zonesGroups[2] = &roomZone;
+    _zoneGroups[0] = &floorZone;
+    _zoneGroups[1] = &cabinetZone;
+    _zoneGroups[2] = &roomZone;
     _zoneCount = 3;
     _secondaryPump = secondaryPump;
     _secondaryPumpBypassValve = secondaryPumpBypassValve;
     _waterSupplyTemp = waterSupplyTemp;
-    _systemRunning = false;
+    _systemRunning = true;
     _alarmState = false;
-    _runningTime = 0;
-    _sensorArray[0] = &floorZoneTemp;
-    _sensorArray[1] = &floorReturnTemp;
-    _sensorArray[2] = &cabinetZoneTemp;
-    _sensorArray[3] = &cabinetFinTemp;
-    _sensorArray[4] = &cabinetReturnTemp;
-    _sensorArray[5] = &roomZoneTemp;
-    _sensorArray[6] = &roomFinTemp;
-    _sensorArray[7] = &roomReturnTemp;
+    _runningTime = getRunningTime();
+    
+    _sensorArray[0] = &floorZone.zoneTemp;//&floorZoneTemp;
+    _sensorArray[1] = &floorZone.returnWaterTemp;//floorReturnTemp;
+    _sensorArray[2] = &cabinetZone.zoneTemp;//cabinetZoneTemp;
+    _sensorArray[3] = &cabinetZone.finTemp;//cabinetFinTemp;
+    _sensorArray[4] = &cabinetZone.returnWaterTemp;//cabinetReturnTemp;
+    _sensorArray[5] = &roomZone.zoneTemp;//roomZoneTemp;
+    _sensorArray[6] = &roomZone.finTemp;//roomFinTemp;
+    _sensorArray[7] = &roomZone.returnWaterTemp;//roomReturnTemp;
     _sensorArray[8] = &waterSupplyTemp;
     _sensorCount = 9;
     
-    floorZoneTemp.setValue(floorTargetTemp - 10);
-    cabinetZoneTemp.setValue(cabinetTargetTemp -10);
-    roomZoneTemp.setValue(roomTargetTemp - 10);
+    floorZone.zoneTemp.setValue(floorTargetTemp - 10);
+    cabinetZone.zoneTemp.setValue(cabinetTargetTemp - 10);
+    roomZone.zoneTemp.setValue(roomTargetTemp - 10);
     
-    //compare sensor values to system settings and initialize proper actuator position && system values
-
+    updateSystem();
 }
 
 HydronicSystemMessage HydronicSystemObject::getSystemStatus(){
-    //stringify all memeber objects
+
+    return HydronicSystemMessage{
+    zoneGroups: {_zoneGroups[0],_zoneGroups[1],_zoneGroups[2]},
+    zoneCount: _zoneCount,
+    secondaryPump: _secondaryPump,
+    secondaryPumpBypassValve: _secondaryPumpBypassValve,
+    systemRunning: _systemRunning,
+    alarmState: _alarmState,
+    alarmMessage: _alarmMessage,
+    runningTime: getRunningTime()
+    };
 }
+ 
 void HydronicSystemObject::updateSystem(){
+
     //getSensorValues
     for(int i=0;i<_sensorCount;i++){
         //get new value from sensor
-        
-        //_sensorArray[i]->read();
         _mimicSensorRead(i);
-        
         //compare sensor value to system temps
-        //update zoneGroups to reflect all updates of system
         _analyzeSensorReading(i);
     }
-
-
-
 }
 
 void HydronicSystemObject::stop(){
