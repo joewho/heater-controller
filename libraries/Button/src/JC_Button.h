@@ -62,6 +62,8 @@ class Button
     
         //ADDED BY JOE CUTRO NOV.2018
         uint8_t getPin();
+    
+        bool hasChanged();
 
     private:
         uint8_t m_pin;          // arduino pin number connected to button

@@ -11,7 +11,7 @@
 #include <JC_Button.h>
 //enum buttonActions {isPressed, isReleased, wasPressed, wasReleased, pressedFor, releasedFor};
 const int LONG_PRESS = 1000;
-
+String lastAction;
 class ButtonListener{
 private:
     int _pin;
@@ -47,6 +47,7 @@ public:
     }
     
     void updateListener(){
+        lastAction = _action;
         _button.read();
         if(_button.isPressed()) _action = "isPressed";
         if(_button.isReleased()) _action = "isReleased";
@@ -54,8 +55,16 @@ public:
         if(_button.wasReleased()) _action = "wasReleased";
         if(_button.pressedFor(LONG_PRESS)) _action = "pressedFor";
         if(_button.releasedFor(LONG_PRESS)) _action = "releasedFor";
-        
+
+        _has_changed = _button.hasChanged();
         _last_change = _button.lastChange();
+        if(lastAction != _action){
+            if(lastAction == "isPressed" && _action == "pressedFor"){
+                _has_changed = true;
+                _last_change = millis();
+            }
+        }
+        
     }
     
     String toString(){

@@ -109,4 +109,8 @@ uint8_t Button::getPin()
 {
     return m_pin;
 }
+
+bool Button::hasChanged(){
+    return m_changed;
+}
  

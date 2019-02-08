@@ -3,17 +3,17 @@
 //#include "Relay.h"
 //#include "UserInputHandler.h"
 #include "GUIHandler.h"
-//#include "DisplayHandler.h"
 //#include "RelayHandler.h"
 #include "ButtonController2.h"
 #include "HydronicSystemObject.h"
+#include "LiquidCrystal.h"
 
 //Object to manage input from multiple buttons
 ButtonController2 buttonController;
+ButtonOutput* buttonOutput;
 HydronicSystemObject hydroHeater;
 HydronicSystemMessage hydroBabel;
 GUIHandler gui;
-//DisplayHandler displayHandler;
 
 const byte battery1 = 5;
 const byte battery2 = 6;
@@ -68,17 +68,20 @@ void printBabel(HydronicSystemMessage babel){
 
 void setup() {
   Serial.begin(9600);
+  //lcd.begin(16,2);
+  
   pinMode(battery1,OUTPUT);
   pinMode(battery2,OUTPUT);
   pinMode(battery3,OUTPUT);
   pinMode(battery4,OUTPUT);
   //create buttons and add to ButtonController
-    buttonController.addButton("menu",button1Pin);
-    buttonController.addButton("onOff",button2Pin);
-    buttonController.addButton("up",button3Pin);
-    buttonController.addButton("down",button4Pin);
+    buttonController.addButton("navButton",button1Pin);
+    buttonController.addButton("selectButton",button2Pin);
+    buttonController.addButton("upButton",button3Pin);
+    buttonController.addButton("downButton",button4Pin);
   //prepare buttons for use
   buttonController.beginSequence();
+  gui.initiate();
   hydroHeater.initiate();
   //relayHandler.initiate(); - set values of relays based on initialized hydroHeater values
   //displayHandler.initiate(); - initialized display and set to welcome screen
@@ -88,6 +91,39 @@ void loop() {
   //start listening for any button inputs
   buttonController.listening();
    //Serial.print(buttonController.toStringPretty());
+    //print button name & action on lcd when pressed
+    buttonOutput = buttonController.getButtonOutputs();
+    
+    for(int i=0;i<4;i++){
+      if(buttonOutput[i].hasChanged){
+        gui.updateButtonInput(buttonOutput[i].name,buttonOutput[i].action);
+        /*
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(buttonOutput[i].name);
+        lcd.print(" changed");
+        lcd.setCursor(0,1);
+        lcd.print(buttonOutput[i].lastChange);
+        */
+      }
+      /*
+      if(buttonOutput[i].action == "isPressed"){
+      
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(buttonOutput[i].name);
+        lcd.setCursor(0,1);
+        lcd.print("is Pressed");
+      }
+      else if(buttonOutput[i].action == "pressedFor"){
+        //lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print(buttonOutput[i].name);
+        lcd.setCursor(0,1);
+        lcd.print("Long Press");
+      }
+      */
+    }
    
     currentTime = millis();
   if((currentTime - lastTimeCheck)>= timeDelay){
@@ -115,8 +151,13 @@ void loop() {
   if((currentTime - lastBatteryCheck) >= chargingTimer){
     lastBatteryCheck = currentTime;
     digitalWrite(batteryBank[batteryCounter],LOW);
+    //lcd.clear();
+    //lcd.setCursor(0,0);
     batteryCounter++;
+   
     if(batteryCounter >= batteryCount) batteryCounter=0;
+    //lcd.print("battery ");
+    //lcd.print(batteryCounter+1);
   }
 
   //update relays with hydroBabel input
