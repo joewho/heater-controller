@@ -18,8 +18,11 @@ struct ButtonMessage{
 
 //relay struct
 struct RelayMessage{
-    int relayPin;
-    bool relayOn;
+    byte index;
+    String name;
+    byte pin;
+    bool powerOn;
+    bool isInverse;
     float lastChanged;
     bool hasChanged;
 };

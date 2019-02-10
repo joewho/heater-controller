@@ -36,8 +36,8 @@ public:
     String getAction(){return _action;}
     void setAction(String s){_action = s;}
     
-    float getLastChange(){return _last_change;}
-    void setLastChange(float f){_last_change = f;}
+    float getLastChanged(){return _last_change;}
+    void setLastChanged(float f){_last_change = f;}
     
     bool hasChanged(){return _has_changed;}
     void setHasChanged(bool b);

@@ -30,8 +30,10 @@ private:
     
     const String PROGMEM _zoneEditMenu[4] = {"Target Temp","Lower Limit", "Upper Limit", "Auto Control"};
     const byte PROGMEM _zoneEditMenuLength = 4;
-    
+    /*
     const String PROGMEM _relayMenu[7] = {"relay_1", "relay_2", "relay_3", "relay_4", "relay_5", "relay_6", "relay_7"};
+    */
+    String _relayMenu[7];
     const byte PROGMEM _relayMenuLength = 7;
     
     byte _currentIndex;
@@ -42,44 +44,51 @@ private:
     String* _menuArray[4] = {_mainMenu, _heaterMenu, _zoneEditMenu, _relayMenu};
     
     HydronicDisplayData* _heaterData;
-    HydronicDisplayData _editedByUser;
+    HydronicDisplayData _heaterEditedByUser;
+    
+    RelayMessage* _relayData;
+    RelayMessage _relayEditedByUser;
     
     void _navButtonPressed(String);
     void _selectButtonPressed(String);
     void _upButtonPressed(String);
     void _downButtonPressed(String);
-    void _editHeaterSettings(int);
+    
+    void _editHeaterSettings(byte);
     void _advanceSelector();
     void _displayNextScreen();
     void _displayChildMenu();
     void _displayParentMenu();
     void _displayMainMenu();
-    void _displayHeaterItem();//byte);
-    void _displayHeaterEditItem();//byte);
-    void _toggleZonePower();
-    void _displayRelayItem();//byte);
-    //void _displayBatteryItem();
+    void _displayHeaterItem();
+    void _displayHeaterEditItem();
     void _updateHeaterItemValue();
+    void _toggleZonePower();
+    //void _displayBatteryItem();
+    
+//    void _editRelaySettings(byte);
+    void _displayRelayItem();
     void _updateRelayItemValue();
-    void _toggleRelay();
+    void _toggleRelay(byte);
     
 
 public:
     GUIHandler(){
         _currentMenu = WELCOME;
-        //_previousMenu = WELCOME;
         _currentIndex = 0;
         _heaterMenuIndex = 0;
         _mainMenuIndex = 0;
     }
     bool changeHeaterSettings;
     bool changeRelaySettings;
+    void preloadRelayData(RelayMessage[]);
     
     void initiate();
     void updateHydroData(HydronicDisplayData[]);
+    void updateRelayData(RelayMessage[]);
     void updateButtonInput(String, String);
     HydronicDisplayData getHeaterChanges();
-    void getRelayChanges(); //wont be void, must build relay communication struct
+    RelayMessage getRelayChanges(); //wont be void, must build relay communication struct
     
     
 };
@@ -89,12 +98,24 @@ void GUIHandler::initiate(){
     displayHandler.setText(_initialTextRow1,0,0);
     displayHandler.setText(_initialTextRow2,0,1);
 }
+
+void GUIHandler::preloadRelayData(RelayMessage relayData[]){
+    for(int i=0;i<_relayMenuLength;i++){
+        _relayMenu[i] = relayData[i].name;
+    }
+    _relayData = relayData;
+}
 void GUIHandler::updateHydroData(HydronicDisplayData hydroData[]){
     //Serial.print("DisplayHandler::mainMenu size: ");
     //Serial.println(sizeof(_mainMenu)/sizeof(_mainMenu[0]));
     _heaterData = hydroData;
     if(_currentMenu == HEATER) _updateHeaterItemValue();
     if(_currentMenu == EDIT) _displayHeaterEditItem();
+}
+
+void GUIHandler::updateRelayData(RelayMessage relayData[]){
+    _relayData = relayData;
+    if(_currentMenu == RELAY) _updateRelayItemValue();
 }
 
 void GUIHandler::updateButtonInput(String name, String action){
@@ -140,13 +161,15 @@ void GUIHandler::_selectButtonPressed(String action){
             case MAIN:
                 _displayChildMenu();
                 break;
+                
             case EDIT:
                // if(_currentIndex == _zoneEditMenuLength-1)
                //     _toggleZonePower();
                 break;
             case RELAY:
-                _toggleRelay();
+                _toggleRelay(_currentIndex);
                 break;
+                
         }
         
     }
@@ -179,9 +202,9 @@ void GUIHandler::_upButtonPressed(String action){
                 else
                     _toggleZonePower();
                 break;
-            //only for scroll version of relay menu
-            //case RELAY:
-            //    break;
+            case RELAY:
+                _toggleRelay(_currentIndex);
+                break;
             default:
                 break;
         }//switch
@@ -198,9 +221,9 @@ void GUIHandler::_downButtonPressed(String action){
                 else
                     _toggleZonePower();
                 break;
-                //only for scroll version of relay menu
-                //case RELAY:
-                //    break;
+            case RELAY:
+                _toggleRelay(_currentIndex);
+                break;
             default:
                 break;
         }//switch
@@ -365,6 +388,7 @@ void GUIHandler::_updateHeaterItemValue(){
 void GUIHandler::_displayHeaterEditItem(){//byte index){
     String row1, row2;
     row1 = _heaterMenu[_heaterMenuIndex];
+    row1 += "  Edit";
     row2 = _zoneEditMenu[_currentIndex]+' ';
     switch(_currentIndex){
         case 0:
@@ -386,20 +410,20 @@ void GUIHandler::_displayHeaterEditItem(){//byte index){
     displayHandler.setText(row2,0,1);
 }
 
-void GUIHandler::_editHeaterSettings(int value){
+void GUIHandler::_editHeaterSettings(byte value){
     //input is either 1 || -1 to inc || dec settings of currentValue displayed on LCD screen
     //update data
-    _editedByUser = _heaterData[_heaterMenuIndex];
+    _heaterEditedByUser = _heaterData[_heaterMenuIndex];
     switch(_currentIndex){
         case 0:
             //_heaterData[_heaterMenuIndex].targetTemp += value;
-            _editedByUser.targetTemp += value;
+            _heaterEditedByUser.targetTemp += value;
             break;
         case 1:
-            _editedByUser.lowTemp += value;
+            _heaterEditedByUser.lowTemp += value;
             break;
         case 2:
-            _editedByUser.highTemp += value;
+            _heaterEditedByUser.highTemp += value;
             break;
         defaut:
             break;
@@ -412,8 +436,8 @@ void GUIHandler::_editHeaterSettings(int value){
 
 void GUIHandler::_toggleZonePower(){
     Serial.println("TOGGLE ZONE POWER");
-    _editedByUser = _heaterData[_heaterMenuIndex];
-    _editedByUser.zoneControlOn =! _editedByUser.zoneControlOn;
+    _heaterEditedByUser = _heaterData[_heaterMenuIndex];
+    _heaterEditedByUser.zoneControlOn =! _heaterEditedByUser.zoneControlOn;
     
     changeHeaterSettings = true;
     //_displayHeaterEditItem();
@@ -422,15 +446,37 @@ void GUIHandler::_toggleZonePower(){
 }
 
 HydronicDisplayData GUIHandler::getHeaterChanges(){
-    return _editedByUser;
+    return _heaterEditedByUser;
     
 }
 
-void GUIHandler::_displayRelayItem(){//byte index){
+void GUIHandler::_displayRelayItem(){
+    String row1, row2;
+    row1 = _relayMenu[_currentIndex];
+    row2 = "Power ";
+    row2 += (_relayData[_currentIndex].powerOn)? "On":"Off";
     
+    displayHandler.clearDisplay();
+    displayHandler.setText(row1,0,0);
+    displayHandler.setText(row2,0,1);
 }
 
-void GUIHandler::_updateRelayItemValue(){}
+void GUIHandler::_updateRelayItemValue(){
+    String row2;
+    row2 = "Power ";
+    row2 += (_relayData[_currentIndex].powerOn)? "On":"Off";
+    
+    displayHandler.setRowText(row2,1);
+}
 
-void GUIHandler::_toggleRelay(){}
+void GUIHandler::_toggleRelay(byte index){
+    _relayEditedByUser = _relayData[index];
+    _relayEditedByUser.powerOn =! _relayEditedByUser.powerOn;
+    
+    changeRelaySettings = true;
+}
+
+RelayMessage GUIHandler::getRelayChanges(){
+    return _relayEditedByUser;
+}
 #endif /* GUIHandler_h */

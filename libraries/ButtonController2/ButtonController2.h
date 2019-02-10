@@ -9,7 +9,7 @@
 #ifndef ButtonController2_h
 #define ButtonController2_h
 #include <ButtonListener.h>
-
+/*
 struct ButtonOutput{
     String name;
     int pin;
@@ -17,20 +17,21 @@ struct ButtonOutput{
     float lastChange;
     bool hasChanged;
 };
-
+*/
 class ButtonController2{
 private:
     int _arrLength;
     ButtonListener _listenerArr[10];
-    ButtonOutput _output[5];
+    //ButtonOutput _output[5];
+    ButtonMessage _output[5];
 public:
     ButtonController2(){_arrLength=0;}
     int arrayLength(){return _arrLength;}
     void initiate(); //begin all buttons of buttonListeners in array
     void listening(); //read all buttons of buttonListeners in array using updateListener
     void addButton(String name, int pin);//create ButtonListener, ButtonTalker and Button from inputs
-    //ButtonOutput * getButtonOutputs(); //
-    ButtonOutput * getButtonOutputs();
+    //ButtonOutput * getButtonOutputs();
+    ButtonMessage* getButtonMessage();
   //  String toString(); //prep string of member values for serial print
   //  String toStringPretty();
     ButtonListener * getListener(int index){
@@ -72,12 +73,13 @@ void ButtonController2::addButton(String name, int pin){
 }
 
 
-ButtonOutput * ButtonController2::getButtonOutputs(){
+//ButtonOutput * ButtonController2::getButtonOutputs(){
+ButtonMessage* ButtonController2::getButtonMessage(){
     for(int i=0;i<_arrLength;i++){
         _output[i].name = _listenerArr[i].getName();
         _output[i].pin = _listenerArr[i].getPin();
         _output[i].action = _listenerArr[i].getAction();
-        _output[i].lastChange = _listenerArr[i].getLastChange();
+        _output[i].lastChanged = _listenerArr[i].getLastChanged();
         _output[i].hasChanged = _listenerArr[i].hasChanged();
     }
     return _output;
