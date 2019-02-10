@@ -18,12 +18,12 @@ DisplayHandler displayHandler(16,2);
 class GUIHandler{
     
 private:
-    enum menuModes {WELCOME, MAIN, HEATER, EDIT, RELAY};
+    enum menuModes {WELCOME, MAIN, HEATER, EDIT, RELAY, BATTERY};
     //enum buttons {NAV, SELECT, UP DOWN};
     //enum actions {PRESS, LONGPRESS};
     
-    const String PROGMEM _mainMenu[2] = {"Heater","Relays"};
-    const byte PROGMEM _mainMenuLength = 2;
+    const String PROGMEM _mainMenu[3] = {"Heater","Relays" ,"Batteries"};
+    const byte PROGMEM _mainMenuLength = 3;
     
     const String PROGMEM _heaterMenu[4] = {"Floor","Cabinet", "Room", "Floor Cab   Room"};
     const byte PROGMEM _heaterMenuLength = 4;
@@ -169,6 +169,8 @@ void GUIHandler::_selectButtonPressed(String action){
             case RELAY:
                 _toggleRelay(_currentIndex);
                 break;
+            case BATTERY:
+                break;
                 
         }
         
@@ -230,19 +232,57 @@ void GUIHandler::_downButtonPressed(String action){
     }//if pressed
 }//_downButtonPressed
 
+void GUIHandler::_displayMainMenu(){
+    String stringArr[] ={_mainMenu[0],_mainMenu[1]};
+    displayHandler.setMenuText(stringArr,2,_mainMenuIndex);
+    /*for(int i=0;i<_mainMenuLength;i++){
+     displayHandler.setMenuText(_mainMenu,_mainMenuLength,_mainMenuIndex);
+     }
+     */
+}
+
 void GUIHandler::_advanceSelector(){
     switch(_currentMenu){
         case MAIN:
+            _currentIndex++;
+            if(_currentIndex >= _mainMenuLength) _currentIndex = 0;
+            _mainMenuIndex = _currentIndex;
+            
+            switch(_currentIndex){
+                case 0:
+                    //_currentIndex = 1;
+                    //_mainMenuIndex = _currentIndex;
+                    _displayMainMenu();
+                    //displayHandler.setSelectorRow(0);
+                    break;
+                case 1:
+                    //_currentIndex = 2;
+                    //_mainMenuIndex = _currentIndex;
+                    //String stringArr[] ={_mainMenu[1],_mainMenu[2]};
+                    //displayHandler.setMenuText(stringArr,2,1);
+                    displayHandler.setSelectorRow(1);
+                    break;
+                case 2:
+                    String stringArr[] ={_mainMenu[1],_mainMenu[2]};
+                    displayHandler.setMenuText(stringArr,2,1);
+                    //_currentIndex = 0;
+                    //_mainMenuIndex = _currentIndex;
+                    //_displayMainMenu();
+                    //displayHandler.setMenuText()
+                    break;
+            }
+            /*
             if(_currentIndex == 0){
                 _currentIndex = 1;
                 displayHandler.setSelectorRow(1);
                 //displayHandler.setSelector(spaceChar,0);
                 
-            }else{
+            }else if(){
                 _currentIndex = 0;
                 displayHandler.setSelectorRow(0);
                 //displayHandler.setSelector(spaceChar,1);
             }
+            */
             break;
         default:
             break;
@@ -333,12 +373,6 @@ void GUIHandler::_displayChildMenu(){
         default:
             break;
     }//switch
-}
-
-void GUIHandler::_displayMainMenu(){
-    for(int i=0;i<_mainMenuLength;i++){
-        displayHandler.setMenuText(_mainMenu,_mainMenuLength,_mainMenuIndex);
-    }
 }
 
 void GUIHandler::_displayHeaterItem(){//byte index){
