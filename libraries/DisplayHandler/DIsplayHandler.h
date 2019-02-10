@@ -16,8 +16,13 @@ class DisplayHandler{
 private:
     byte _columnCount;
     byte _rowCount;
-    void _clearRow(){ for(int i=0;i<_columnCount;i++){lcd.print(' ');}}
     char _selectorChar;
+    void _clearRow(int row){
+        lcd.setCursor(0,row);
+        for(int i=0;i<_columnCount;i++){
+            lcd.print(' ');
+        }
+    }
 public:
     DisplayHandler(byte c=16, byte r=2){ _columnCount = c; _rowCount = r;}
     void initiate(){
@@ -41,7 +46,7 @@ public:
     }
     
     void setRowText(String text, byte row){
-        _clearRow();
+        _clearRow(row);
         lcd.setCursor(0,row);
         lcd.print(text);
     }

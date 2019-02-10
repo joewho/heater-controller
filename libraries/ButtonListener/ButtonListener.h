@@ -31,7 +31,7 @@ public:
     void setButton(Button b){_button = b;}
     
     String getName(){return _name;}
-    void setName(String s){_name = s;}
+//    void setName(String s){_name = s;}
     
     String getAction(){return _action;}
     void setAction(String s){_action = s;}
@@ -41,11 +41,7 @@ public:
     
     bool hasChanged(){return _has_changed;}
     void setHasChanged(bool b);
-    
-    void beginListener(){
-        _button.read();
-    }
-    
+
     void updateListener(){
         lastAction = _action;
         _button.read();
@@ -62,10 +58,9 @@ public:
             if(lastAction == "isPressed" && _action == "pressedFor"){
                 _has_changed = true;
                 _last_change = millis();
-            }
-        }
-        
-    }
+            }// pressed || pressedFor
+        }//if lastAction != _action
+    } //updateListener()
     
     String toString(){
         return "name: "+_name + " pin: "+(String)_pin+" action: "+_action+" lastChange: "+(String)_last_change+" hasChanged "+_has_changed;

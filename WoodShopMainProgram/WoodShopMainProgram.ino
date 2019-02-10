@@ -13,6 +13,9 @@ ButtonController2 buttonController;
 ButtonOutput* buttonOutput;
 HydronicSystemObject hydroHeater;
 HydronicSystemMessage hydroBabel;
+HydronicDisplayData hydroDisplayData[3];
+HydronicDisplayData hydroSettingsChanges;
+//RelayDisplayData relaySettingsChanges;
 GUIHandler gui;
 
 const byte battery1 = 5;
@@ -66,6 +69,43 @@ void printBabel(HydronicSystemMessage babel){
 
 }
 
+void printGUIHydroData(HydronicDisplayData tmp){
+    Serial.println("GUI HYDRO DATA");
+//      for(int i=0;i<hydroBabel.zoneCount;i++){
+        //HydronicDisplayData tmp = hydroDisplayData[i];
+        Serial.println(tmp.name);
+        Serial.println("index: "+(String)tmp.arrayIndex);
+        Serial.println("current "+(String)tmp.currentTemp);
+        Serial.println("target "+(String)tmp.targetTemp);
+        Serial.println("low: "+(String)tmp.lowTemp);
+        Serial.println("high: "+(String)tmp.highTemp);
+        Serial.println("zone Control: "+(String)tmp.zoneControlOn);
+        Serial.println("water flow: "+(String)tmp.waterFlowOpen);
+        Serial.println("alarm state: "+(String)tmp.alarmState);
+        Serial.println("alarm message: "+tmp.alarmMessage);
+        Serial.println();
+  //}
+  Serial.println();
+}
+
+void prepGUIHydroData(){
+    HydronicDisplayData tmp;
+    
+    for(int i=0;i<hydroBabel.zoneCount;i++){
+      tmp.arrayIndex = i;
+      tmp.name = hydroBabel.zoneGroups[i]->name;
+      tmp.currentTemp = hydroBabel.zoneGroups[i]->zoneTemp.getValue();
+      tmp.targetTemp = hydroBabel.zoneGroups[i]->targetTemp;
+      tmp.lowTemp = hydroBabel.zoneGroups[i]->lowTemp;
+      tmp.highTemp = hydroBabel.zoneGroups[i]->highTemp;
+      tmp.zoneControlOn = hydroBabel.zoneGroups[i]->zoneControlOn;
+      tmp.waterFlowOpen = hydroBabel.zoneGroups[i]->waterFlowOpen;
+      tmp.alarmState = hydroBabel.zoneGroups[i]->alarmState;
+      tmp.alarmMessage = hydroBabel.zoneGroups[i]->alarmMessage;
+      hydroDisplayData[i] = tmp;
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   //lcd.begin(16,2);
@@ -74,17 +114,10 @@ void setup() {
   pinMode(battery2,OUTPUT);
   pinMode(battery3,OUTPUT);
   pinMode(battery4,OUTPUT);
-  //create buttons and add to ButtonController
-    buttonController.addButton("navButton",button1Pin);
-    buttonController.addButton("selectButton",button2Pin);
-    buttonController.addButton("upButton",button3Pin);
-    buttonController.addButton("downButton",button4Pin);
-  //prepare buttons for use
-  buttonController.beginSequence();
+  buttonController.initiate();
   gui.initiate();
   hydroHeater.initiate();
   //relayHandler.initiate(); - set values of relays based on initialized hydroHeater values
-  //displayHandler.initiate(); - initialized display and set to welcome screen
 }
 
 void loop() {
@@ -97,32 +130,24 @@ void loop() {
     for(int i=0;i<4;i++){
       if(buttonOutput[i].hasChanged){
         gui.updateButtonInput(buttonOutput[i].name,buttonOutput[i].action);
-        /*
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(buttonOutput[i].name);
-        lcd.print(" changed");
-        lcd.setCursor(0,1);
-        lcd.print(buttonOutput[i].lastChange);
-        */
+        if(gui.changeHeaterSettings){
+          //get updated data
+          Serial.println("HEATER SETTINGS CHANGED");
+          hydroSettingsChanges = gui.getHeaterChanges();
+          printGUIHydroData(hydroSettingsChanges);
+          hydroHeater.editSettings(hydroSettingsChanges);
+          //update hydroData
+          gui.changeHeaterSettings = false;
+        }
+          /*
+        if(gui.changeRelaySettings){
+          //get updated data
+          //relaySettingsChanges = gui.getRelayChanges();
+          //update relayData
+          gui.changeRelaySettings = false;
+          }
+          */
       }
-      /*
-      if(buttonOutput[i].action == "isPressed"){
-      
-        lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(buttonOutput[i].name);
-        lcd.setCursor(0,1);
-        lcd.print("is Pressed");
-      }
-      else if(buttonOutput[i].action == "pressedFor"){
-        //lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.print(buttonOutput[i].name);
-        lcd.setCursor(0,1);
-        lcd.print("Long Press");
-      }
-      */
     }
    
     currentTime = millis();
@@ -133,7 +158,12 @@ void loop() {
     hydroHeater.updateSystem();
     hydroBabel = hydroHeater.getSystemStatus();
     //printBabel(hydroBabel);
-
+    
+    //display content
+    prepGUIHydroData();
+    //printGUIHydroData();
+    gui.updateHydroData(hydroDisplayData);
+    
     //edit output signal to relays based on acutator values
     for(int i=0;i<hydroBabel.zoneCount;i++){
       //check each actuator
@@ -143,8 +173,7 @@ void loop() {
       digitalWrite(hydroBabel.zoneGroups[i]->finFan.getPin(),hydroBabel.zoneGroups[i]->finFan.isPowerOn());
     }
 
-    //display content
-    gui.updateHydroData();
+
   }
   analogWrite(batteryBank[batteryCounter],27);
   //digitalWrite(batteryBank[batteryCounter],HIGH);

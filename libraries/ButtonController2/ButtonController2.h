@@ -26,7 +26,7 @@ private:
 public:
     ButtonController2(){_arrLength=0;}
     int arrayLength(){return _arrLength;}
-    void beginSequence(); //begin all buttons of buttonListeners in array
+    void initiate(); //begin all buttons of buttonListeners in array
     void listening(); //read all buttons of buttonListeners in array using updateListener
     void addButton(String name, int pin);//create ButtonListener, ButtonTalker and Button from inputs
     //ButtonOutput * getButtonOutputs(); //
@@ -40,10 +40,16 @@ public:
 };
 #endif /* ButtonController2_h */
 
-void ButtonController2::beginSequence(){
-    for(int i=0;i<_arrLength;i++){
-        _listenerArr[i].beginListener();
-    }
+void ButtonController2::initiate(){
+    pinMode(button1Pin,INPUT);
+    pinMode(button2Pin,INPUT);
+    pinMode(button3Pin,INPUT);
+    pinMode(button4Pin,INPUT);
+    addButton("navButton",button1Pin);
+    addButton("selectButton",button2Pin);
+    addButton("upButton",button3Pin);
+    addButton("downButton",button4Pin);
+
 }
 
 void ButtonController2::listening(){
@@ -58,8 +64,8 @@ void ButtonController2::addButton(String name, int pin){
     //ButtonListener listener(name,&button,pin);
     //Serial.println(listener.toString());
     _listenerArr[_arrLength]= ButtonListener(name,Button(pin,75,false,false),pin);
-    Serial.println("ButtonController-addButton(): ");
-    Serial.println(_listenerArr[_arrLength].toString());
+//    Serial.println("ButtonController-addButton(): ");
+//    Serial.println(_listenerArr[_arrLength].toString());
     
     _arrLength++;
     //Serial.println("addButton - _arrLength: "+(String)_arrLength);

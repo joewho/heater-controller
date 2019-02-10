@@ -23,7 +23,18 @@ struct RelayMessage{
     float lastChanged;
     bool hasChanged;
 };
-
+struct HydronicDisplayData{
+    int arrayIndex;
+    String name;
+    float currentTemp;
+    float targetTemp;
+    float lowTemp;
+    float highTemp;
+    bool zoneControlOn;
+    bool waterFlowOpen;
+    bool alarmState;
+    String alarmMessage;
+};
 //gui_tx struct
 //gui_rx struct
 

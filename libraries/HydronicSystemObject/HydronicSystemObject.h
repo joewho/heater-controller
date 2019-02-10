@@ -68,7 +68,7 @@ public:
     HydronicSystemMessage getSystemStatus(); //outputs string array of stringified memberfucntions and zoneGroups
     void stop();
     void kill();
-    void editSettings();
+    void editSettings(HydronicDisplayData);
     unsigned long getRunningTime(){
         _runningTime = millis() - _startTime;
         return _runningTime;
@@ -509,6 +509,15 @@ void HydronicSystemObject::kill(){
     //stop all timers and counters
     //delete all sensors, actuators, zoneGroups, reset member functions to empty values
 }
-void HydronicSystemObject::editSettings(){}
+void HydronicSystemObject::editSettings(HydronicDisplayData newData){
+    if(newData.lowTemp >= newData.targetTemp)
+        newData.lowTemp = newData.targetTemp-1;
+    if(newData.highTemp <= newData.targetTemp)
+        newData.highTemp = newData.targetTemp+1;
+    _zoneGroups[newData.arrayIndex]->targetTemp = newData.targetTemp;
+    _zoneGroups[newData.arrayIndex]->lowTemp = newData.lowTemp;
+    _zoneGroups[newData.arrayIndex]->highTemp = newData.highTemp;
+    _zoneGroups[newData.arrayIndex]->zoneControlOn = newData.zoneControlOn;
+}
 
 #endif /* HydronicSystemObject_h */
