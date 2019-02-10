@@ -37,6 +37,9 @@ unsigned long timeDelay = 1000; //milliseconds to use for delay reading of senso
 unsigned long lastTimeCheck = 0;
 unsigned long currentTime = 0;
 
+unsigned long demoTimeCheck = 0;
+unsigned long demoTimeDelay = 750;
+
 void printBabel(HydronicSystemMessage babel){
   Serial.println("PRINT BABEL");
   Serial.println("ZoneGroups");
@@ -152,6 +155,18 @@ void loop() {
     //print button name & action on lcd when pressed
     //buttonOutput = buttonController.getButtonOutputs();
     buttonMessage = buttonController.getButtonMessage();
+  currentTime = millis();
+  if((currentTime - demoTimeCheck)>= demoTimeDelay){
+    demoTimeCheck = currentTime;
+   gui.demoMode();
+   relaySettingsChanges = gui.getRelayChanges();
+   Serial.println("WoodShopMainProgram::demoMode()");
+   printRelayData(relaySettingsChanges);
+   relayHandler.editSettings(relaySettingsChanges);
+   //update relayData
+   gui.changeRelaySettings = false;
+   gui.updateRelayData(relayHandler.getAllRelayStatus());
+  }
     
     for(int i=0;i<4;i++){
       //if(buttonOutput[i].hasChanged){

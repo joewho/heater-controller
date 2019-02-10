@@ -14,6 +14,7 @@ static const String PROGMEM _initialTextRow1 = "Woodshop";
 static const String PROGMEM _initialTextRow2 = "Computer v1.0";
 static const char PROGMEM spaceChar = ' ';
 static const char PROGMEM selectorChar = '>';
+
 DisplayHandler displayHandler(16,2);
 class GUIHandler{
     
@@ -35,7 +36,7 @@ private:
     */
     String _relayMenu[7];
     const byte PROGMEM _relayMenuLength = 7;
-    
+    byte _demoModeCounter;
     byte _currentIndex;
     byte _heaterMenuIndex;
     byte _mainMenuIndex;
@@ -78,6 +79,7 @@ public:
         _currentIndex = 0;
         _heaterMenuIndex = 0;
         _mainMenuIndex = 0;
+        _demoModeCounter = 0;
     }
     bool changeHeaterSettings;
     bool changeRelaySettings;
@@ -89,9 +91,18 @@ public:
     void updateButtonInput(String, String);
     HydronicDisplayData getHeaterChanges();
     RelayMessage getRelayChanges(); //wont be void, must build relay communication struct
-    
+    void demoMode();
     
 };
+
+void GUIHandler::demoMode(){
+    _toggleRelay(_demoModeCounter);
+    _demoModeCounter++;
+    if(_demoModeCounter >= _relayMenuLength)
+        _demoModeCounter = 0;
+    //demoModeCounter = (demoModeCounter >= _relayMenuLength)? 0:demoModeCounter++;
+    
+}
 void GUIHandler::initiate(){
     displayHandler.initiate();
     displayHandler.setSelectorChar(selectorChar);

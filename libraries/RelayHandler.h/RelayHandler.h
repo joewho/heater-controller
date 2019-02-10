@@ -52,7 +52,7 @@ void RelayHandler::initiate(){
 }
 
 void RelayHandler::addRelay(String name, byte pin){
-    _relayArray[_relayCount] = Relay(name,pin,false,false);
+    _relayArray[_relayCount] = Relay(name,pin,false,true);
     _relayCount++;
 }
 
