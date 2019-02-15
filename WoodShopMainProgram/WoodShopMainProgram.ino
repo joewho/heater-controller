@@ -39,6 +39,7 @@ unsigned long currentTime = 0;
 
 unsigned long demoTimeCheck = 0;
 unsigned long demoTimeDelay = 750;
+bool demoMode = false;
 
 void printBabel(HydronicSystemMessage babel){
   Serial.println("PRINT BABEL");
@@ -155,18 +156,21 @@ void loop() {
     //print button name & action on lcd when pressed
     //buttonOutput = buttonController.getButtonOutputs();
     buttonMessage = buttonController.getButtonMessage();
-  currentTime = millis();
-  if((currentTime - demoTimeCheck)>= demoTimeDelay){
-    demoTimeCheck = currentTime;
-   gui.demoMode();
-   relaySettingsChanges = gui.getRelayChanges();
-   Serial.println("WoodShopMainProgram::demoMode()");
-   printRelayData(relaySettingsChanges);
-   relayHandler.editSettings(relaySettingsChanges);
-   //update relayData
-   gui.changeRelaySettings = false;
-   gui.updateRelayData(relayHandler.getAllRelayStatus());
-  }
+
+    if(guiDemoMode){
+      currentTime = millis();
+      if((currentTime - demoTimeCheck)>= demoTimeDelay){
+        demoTimeCheck = currentTime;
+        gui.demoMode();
+        relaySettingsChanges = gui.getRelayChanges();
+        Serial.println("WoodShopMainProgram::demoMode()");
+        printRelayData(relaySettingsChanges);
+        relayHandler.editSettings(relaySettingsChanges);
+        //update relayData
+        gui.changeRelaySettings = false;
+        gui.updateRelayData(relayHandler.getAllRelayStatus());
+      }
+    }
     
     for(int i=0;i<4;i++){
       //if(buttonOutput[i].hasChanged){

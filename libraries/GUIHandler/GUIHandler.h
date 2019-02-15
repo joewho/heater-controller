@@ -15,22 +15,27 @@ static const String PROGMEM _initialTextRow2 = "Computer v1.0";
 static const char PROGMEM spaceChar = ' ';
 static const char PROGMEM selectorChar = '>';
 
+static bool guiDemoMode = false;
+
 DisplayHandler displayHandler(16,2);
 class GUIHandler{
     
 private:
-    enum menuModes {WELCOME, MAIN, HEATER, EDIT, RELAY, BATTERY};
+    enum menuModes {WELCOME, MAIN, HEATER, EDIT, RELAY, BATTERY, DEMO};
     //enum buttons {NAV, SELECT, UP DOWN};
     //enum actions {PRESS, LONGPRESS};
     
-    const String PROGMEM _mainMenu[3] = {"Heater","Relays" ,"Batteries"};
-    const byte PROGMEM _mainMenuLength = 3;
+    const String PROGMEM _mainMenu[4] = {"Heater","Relays" ,"Batteries", "DemoMode"};
+    const byte PROGMEM _mainMenuLength = 4;
     
     const String PROGMEM _heaterMenu[4] = {"Floor","Cabinet", "Room", "Floor Cab   Room"};
     const byte PROGMEM _heaterMenuLength = 4;
     
     const String PROGMEM _zoneEditMenu[4] = {"Target Temp","Lower Limit", "Upper Limit", "Auto Control"};
     const byte PROGMEM _zoneEditMenuLength = 4;
+    
+    const String PROGMEM _demoMenu[2] = {"Demo - OFF","Demo - ON"};
+    const byte PROGMEM _demoMenuLength = 2;
     /*
     const String PROGMEM _relayMenu[7] = {"relay_1", "relay_2", "relay_3", "relay_4", "relay_5", "relay_6", "relay_7"};
     */
@@ -55,7 +60,7 @@ private:
     void _upButtonPressed(String);
     void _downButtonPressed(String);
     
-    void _editHeaterSettings(byte);
+    void _editHeaterSettings(char byte);
     void _advanceSelector();
     void _displayNextScreen();
     void _displayChildMenu();
@@ -71,6 +76,7 @@ private:
     void _displayRelayItem();
     void _updateRelayItemValue();
     void _toggleRelay(byte);
+    void _toggleDemo();
     
 
 public:
@@ -92,6 +98,7 @@ public:
     HydronicDisplayData getHeaterChanges();
     RelayMessage getRelayChanges(); //wont be void, must build relay communication struct
     void demoMode();
+    void turnRelayOff(byte);
     
 };
 
@@ -102,6 +109,14 @@ void GUIHandler::demoMode(){
         _demoModeCounter = 0;
     //demoModeCounter = (demoModeCounter >= _relayMenuLength)? 0:demoModeCounter++;
     
+}
+
+void GUIHandler::turnRelayOff(byte index){
+//    _demoModeCounter = 0;
+    _relayEditedByUser = _relayData[index];
+    _relayEditedByUser.powerOn = false;
+
+    changeRelaySettings = true;
 }
 void GUIHandler::initiate(){
     displayHandler.initiate();
@@ -159,6 +174,10 @@ void GUIHandler::_navButtonPressed(String action){
                 _displayNextScreen();
                 //advanceScrollMenu();
                 break;
+            case DEMO:
+                _currentMenu = MAIN;
+                _mainMenuIndex = 0;
+                _displayMainMenu();
             default:
                 break;
         }//switch
@@ -172,7 +191,6 @@ void GUIHandler::_selectButtonPressed(String action){
             case MAIN:
                 _displayChildMenu();
                 break;
-                
             case EDIT:
                // if(_currentIndex == _zoneEditMenuLength-1)
                //     _toggleZonePower();
@@ -181,6 +199,9 @@ void GUIHandler::_selectButtonPressed(String action){
                 _toggleRelay(_currentIndex);
                 break;
             case BATTERY:
+                break;
+            case DEMO:
+                _toggleDemo();
                 break;
                 
         }
@@ -253,6 +274,7 @@ void GUIHandler::_displayMainMenu(){
 }
 
 void GUIHandler::_advanceSelector(){
+    String stringArr[2];
     switch(_currentMenu){
         case MAIN:
             _currentIndex++;
@@ -274,12 +296,23 @@ void GUIHandler::_advanceSelector(){
                     displayHandler.setSelectorRow(1);
                     break;
                 case 2:
-                    String stringArr[] ={_mainMenu[1],_mainMenu[2]};
+                    stringArr[0] = _mainMenu[1];
+                    stringArr[1] = _mainMenu[2];
                     displayHandler.setMenuText(stringArr,2,1);
                     //_currentIndex = 0;
                     //_mainMenuIndex = _currentIndex;
                     //_displayMainMenu();
                     //displayHandler.setMenuText()
+                    break;
+                case 3:
+                    if(guiDemoMode){
+                        stringArr[0] = _mainMenu[2];
+                        stringArr[1] = _demoMenu[1];
+                    }else{
+                        stringArr[0] = _mainMenu[2];
+                        stringArr[1] = _demoMenu[0];
+                    }
+                    displayHandler.setMenuText(stringArr,2,1);
                     break;
             }
             /*
@@ -369,6 +402,11 @@ void GUIHandler::_displayChildMenu(){
                 _currentIndex = 0;
                 //display relays menu items
                 _displayRelayItem();//0);
+            }else if(_currentIndex == 3){
+                _mainMenuIndex = _currentIndex;
+                _currentMenu = DEMO;
+                _currentIndex = 0;
+                _toggleDemo();
             }
             break;
         case HEATER:
@@ -455,7 +493,7 @@ void GUIHandler::_displayHeaterEditItem(){//byte index){
     displayHandler.setText(row2,0,1);
 }
 
-void GUIHandler::_editHeaterSettings(byte value){
+void GUIHandler::_editHeaterSettings(char value){
     //input is either 1 || -1 to inc || dec settings of currentValue displayed on LCD screen
     //update data
     _heaterEditedByUser = _heaterData[_heaterMenuIndex];
@@ -523,5 +561,18 @@ void GUIHandler::_toggleRelay(byte index){
 
 RelayMessage GUIHandler::getRelayChanges(){
     return _relayEditedByUser;
+}
+
+void GUIHandler::_toggleDemo(){
+    String stringArr[2];
+    guiDemoMode =! guiDemoMode;
+    if(guiDemoMode){
+        stringArr[0] = _mainMenu[2];
+        stringArr[1] = _demoMenu[1];
+    }else{
+        stringArr[0] = _mainMenu[2];
+        stringArr[1] = _demoMenu[0];
+    }
+    displayHandler.setMenuText(stringArr,2,1);
 }
 #endif /* GUIHandler_h */
