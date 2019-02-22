@@ -9,11 +9,11 @@
 #define DisplayHandler_h
 #include <LiquidCrystal.h>
 
-const int rs=42,en=43,d4=22,d5=23,d6=24,d7=25;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+LiquidCrystal lcd(LCD_rs, LCD_en, LCD_d4, LCD_d5, LCD_d6, LCD_d7);
 
 class DisplayHandler{
 private:
+    byte _brightness = 255;
     byte _columnCount;
     byte _rowCount;
     char _selectorChar;
@@ -23,10 +23,16 @@ private:
             lcd.print(' ');
         }
     }
+    void _setBacklight();
 public:
     DisplayHandler(byte c=16, byte r=2){ _columnCount = c; _rowCount = r;}
     void initiate(){
         lcd.begin(_columnCount,_rowCount);
+        pinMode(LCD_RED,OUTPUT);
+        pinMode(LCD_GREEN,OUTPUT);
+        pinMode(LCD_BLUE,OUTPUT);
+        _brightness = 100;
+        _setBacklight();
     }
     void clearDisplay(){
         lcd.clear();
@@ -66,4 +72,11 @@ public:
         setSelectorRow(rowSelected);
     }
 };
+
+void DisplayHandler::_setBacklight(){
+    analogWrite(LCD_RED, 125);
+    analogWrite(LCD_GREEN, 0);
+    analogWrite(LCD_BLUE,0);
+    
+}
 #endif /* DisplayHandler_h */

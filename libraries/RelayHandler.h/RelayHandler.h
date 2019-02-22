@@ -11,9 +11,12 @@
 
 class RelayHandler{
 private:
+    const bool PROGMEM _inverseByDefault = true;
+    const bool PROGMEM _powerOnByDefault = false;
+    const byte PROGMEM _relayMaxCount = 24;
     byte _relayCount;
-    Relay _relayArray[10];
-    RelayMessage _output[10];
+    Relay _relayArray[24];
+    RelayMessage _output[24];
 public:
     RelayHandler(){_relayCount=0;}
     int relayCount(){return _relayCount;}
@@ -22,24 +25,13 @@ public:
     RelayMessage* getAllRelayStatus();
     RelayMessage getRelayStatus(byte);
     void editSettings(RelayMessage);
+    void toggleByPin(byte pin){
+        digitalWrite(pin,!digitalRead(pin));
+    }
 };
 
 void RelayHandler::initiate(){
-    
-    pinMode(relay1Pin,OUTPUT);
-    pinMode(relay2Pin,OUTPUT);
-    pinMode(relay3Pin,OUTPUT);
-    pinMode(relay4Pin,OUTPUT);
-    pinMode(relay5Pin,OUTPUT);
-    pinMode(relay6Pin,OUTPUT);
-    pinMode(relay7Pin,OUTPUT);
-    digitalWrite(relay1Pin,LOW);
-    digitalWrite(relay2Pin,LOW);
-    digitalWrite(relay3Pin,LOW);
-    digitalWrite(relay4Pin,LOW);
-    digitalWrite(relay5Pin,LOW);
-    digitalWrite(relay6Pin,LOW);
-    digitalWrite(relay7Pin,LOW);
+    _relayCount =0;
     
     addRelay("TableSaw",relay1Pin);
     addRelay("Elevator",relay2Pin);
@@ -47,12 +39,33 @@ void RelayHandler::initiate(){
     addRelay("Shop Lights",relay4Pin);
     addRelay("Garage Lights",relay5Pin);
     addRelay("Dust Collector",relay6Pin);
-    addRelay("Exhaust Fan",relay7Pin);
+    addRelay("Air Compressor",relay7Pin);
     
+    
+    for(int i=0;i<_relayCount;i++){
+        pinMode(relayFirstPin+i,OUTPUT);
+        digitalWrite(relayFirstPin+i,(_powerOnByDefault)? HIGH:LOW);
+    }
+    /*
+    pinMode(relay1Pin,OUTPUT);
+    pinMode(relay2Pin,OUTPUT);
+    pinMode(relay3Pin,OUTPUT);
+    pinMode(relay4Pin,OUTPUT);
+    pinMode(relay5Pin,OUTPUT);
+    pinMode(relay6Pin,OUTPUT);
+    pinMode(relay7Pin,OUTPUT);
+    digitalWrite(relay1Pin,(_powerOnByDefault)? HIGH:LOW);
+    digitalWrite(relay2Pin,(_powerOnByDefault)? HIGH:LOW);
+    digitalWrite(relay3Pin,(_powerOnByDefault)? HIGH:LOW);
+    digitalWrite(relay4Pin,(_powerOnByDefault)? HIGH:LOW);
+    digitalWrite(relay5Pin,(_powerOnByDefault)? HIGH:LOW);
+    digitalWrite(relay6Pin,(_powerOnByDefault)? HIGH:LOW);
+    digitalWrite(relay7Pin,(_powerOnByDefault)? HIGH:LOW);
+     */
 }
 
 void RelayHandler::addRelay(String name, byte pin){
-    _relayArray[_relayCount] = Relay(name,pin,false,true);
+    _relayArray[_relayCount] = Relay(name,pin,_powerOnByDefault,_inverseByDefault);
     _relayCount++;
 }
 

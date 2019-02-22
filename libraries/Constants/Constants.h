@@ -8,23 +8,59 @@
 #ifndef Constants_h
 #define Constants_h
 
+
+const byte PROGMEM LCDfirstPin = 26;
+const byte PROGMEM LCD_rs=26;
+const byte PROGMEM LCD_en=27;
+const byte PROGMEM LCD_d4=28;
+const byte PROGMEM LCD_d5=29;
+const byte PROGMEM LCD_d6=30;
+const byte PROGMEM LCD_d7=31;
+const byte PROGMEM LCD_RED=5;
+const byte PROGMEM LCD_GREEN=6;
+const byte PROGMEM LCD_BLUE=7;
+
+const byte PROGMEM buttonFirstPin = 4;
+const byte PROGMEM button1Pin = 7;
+const byte PROGMEM button2Pin = 6;
+const byte PROGMEM button3Pin = 5;
+const byte PROGMEM button4Pin = 4;
+
+const byte PROGMEM relayFirstPin = 32;
+//batteries
+const byte PROGMEM relay1Pin = 32;
+const byte PROGMEM relay2Pin = 33;
+const byte PROGMEM relay3Pin = 34;
+const byte PROGMEM relay4Pin = 35;
+//heater zones
+const byte PROGMEM relay5Pin = 36;
+const byte PROGMEM relay6Pin = 37;
+const byte PROGMEM relay7Pin = 38;
+
+const byte PROGMEM relay8Pin = 39;
+const byte PROGMEM relay9Pin = 40;
+const byte PROGMEM relay10Pin = 41;
+const byte PROGMEM relay11Pin = 42;
+const byte PROGMEM relay12Pin = 43;
+const byte PROGMEM relay13Pin = 44;
+const byte PROGMEM relay14Pin = 45;
+const byte PROGMEM relay15Pin = 46;
+const byte PROGMEM relay16Pin = 47;
+const byte PROGMEM relay17Pin = 48;
+const byte PROGMEM relay18Pin = 49;
+const byte PROGMEM relay19Pin = 50;
+const byte PROGMEM relay20Pin = 51;
+const byte PROGMEM relay21Pin = 52;
+const byte PROGMEM relay22Pin = 53;
+
+const byte battery1 = relay1Pin;
+const byte battery2 = relay2Pin;
+const byte battery3 = relay3Pin;
+const byte battery4 = relay4Pin;
+const byte batteryCount = 4;
+
 /*
-enum states {WELCOME, FLOOR, FLOOR_TARGET, FLOOR_LOWER, FLOOR_UPPER,
-    CAB, CAB_TARGET, CAB_LOWER, CAB_UPPER,
-    ROOM, ROOM_TARGET, ROOM_LOWER, ROOM_UPPER, MULTI,
-    RELAY_1,RELAY_2,RELAY_3,RELAY_4,RELAY_5,RELAY_6,RELAY_7};  // states for ZONE ID and the state machine/display
+const byte PROGMEM relay23Pin = 52;
+const byte PROGMEM relay24Pin = 53;
 */
-const byte button1Pin = 53;//5;
-const byte button2Pin = 52;//6;
-const byte button3Pin = 51;//3;
-const byte button4Pin = 50;//4;
-
-const byte relay1Pin = 31;
-const byte relay2Pin = 32;
-const byte relay3Pin = 33;
-const byte relay4Pin = 34;
-const byte relay5Pin = 35;
-const byte relay6Pin = 36;
-const byte relay7Pin = 37;
-
 #endif /* Constants_h */

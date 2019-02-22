@@ -11,9 +11,9 @@
 //enum Function {HEATING, COOLING};
 
 const byte floorTempSensorPin PROGMEM = 100;
-const byte floorPumpPin PROGMEM = 7;
+const byte floorPumpPin PROGMEM = 100;
 const byte floorReturnTempSensorPin PROGMEM = 100;
-const byte floorControlValvePin PROGMEM = 2;
+const byte floorControlValvePin PROGMEM = 36;
 const byte floorBackflowValvePin PROGMEM = 100;
 //const byte floorPumpTempSensorPin = 100;
 //const byte floorFlowSensorPin = 100;
@@ -21,11 +21,11 @@ const byte floorBackflowValvePin PROGMEM = 100;
 //const byte floorRedLedPin = 7;
 
 const byte cabTempSensorPin PROGMEM = 100;
-const byte cabPumpPin PROGMEM = 8;
+const byte cabPumpPin PROGMEM = 100;
 const byte cabFinTempSensorPin PROGMEM = 100;
 const byte cabFinFanPin PROGMEM = 100;
 const byte cabReturnTempSensorPin PROGMEM = 100;
-const byte cabControlValvePin PROGMEM = 3;
+const byte cabControlValvePin PROGMEM = 37;
 const byte cabBackflowValvePin PROGMEM = 100;
 //const byte cabPumpTempSensorPin = 100;
 //const byte cabFlowSensorPin = 100;
@@ -33,12 +33,12 @@ const byte cabBackflowValvePin PROGMEM = 100;
 //const byte cabRedLedPin = 8;
 
 const byte roomTempSensorPin PROGMEM = 100;
-const byte roomPumpPin PROGMEM = 9;
+const byte roomPumpPin PROGMEM = 100;
 const byte roomFinTempSensorPin PROGMEM = 100;
 const byte roomFinFanPin PROGMEM = 100;
 const byte roomCircFanPin PROGMEM = 100;
 const byte roomReturnTempSensorPin PROGMEM = 100;
-const byte roomControlValvePin PROGMEM = 4;
+const byte roomControlValvePin PROGMEM = 100;
 const byte roomBackflowValvePin PROGMEM = 100;
 //const byte roomPumpTempSensorPin = 100;
 //const byte roomFlowSensorPin = 100;

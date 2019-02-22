@@ -5,7 +5,7 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
 char thingSpeakAddress[] = "api.thingspeak.com";
 String writeAPIkey = "1R2S1NL85TGT0X0P";
-const int updateThingSpeakInterval = 60 * 1000;
+const int updateThingSpeakInterval = 25 * 1000;
 
 
 long lastConnectionTime = 0;

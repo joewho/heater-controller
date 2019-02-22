@@ -23,11 +23,7 @@ RelayHandler relayHandler;
 RelayMessage* relayMessages;
 RelayMessage relaySettingsChanges;
 
-const byte battery1 = 5;
-const byte battery2 = 6;
-const byte battery3 = 7;
-const byte battery4 = 8;
-const byte batteryCount = 4;
+
 byte batteryCounter = 0;
 const int  chargingTimer = 1000; //ms of time to induce charge on battery
 unsigned long lastBatteryCheck = 0;
@@ -133,6 +129,10 @@ void setup() {
   pinMode(battery2,OUTPUT);
   pinMode(battery3,OUTPUT);
   pinMode(battery4,OUTPUT);
+  //digitalWrite(battery1,HIGH);
+  //digitalWrite(battery2,HIGH);
+  //digitalWrite(battery3,HIGH);
+  //digitalWrite(battery4,HIGH);
   buttonController.initiate();
   relayHandler.initiate();
   relayMessages = relayHandler.getAllRelayStatus();
@@ -218,7 +218,8 @@ void loop() {
     //edit output signal to relays based on acutator values
     for(int i=0;i<hydroBabel.zoneCount;i++){
       //check each actuator
-      digitalWrite(hydroBabel.zoneGroups[i]->controlValve.getPin(),hydroBabel.zoneGroups[i]->controlValve.isPowerOn());
+      relayHandler.toggleByPin(hydroBabel.zoneGroups[i]->controlValve.getPin());
+      //digitalWrite(hydroBabel.zoneGroups[i]->controlValve.getPin(),hydroBabel.zoneGroups[i]->controlValve.isPowerOn());
       //digitalWrite(hydroBabel.zoneGroups[i]->backflowValve.getPin(),hydroBabel.zoneGroups[i]->backflowValve.isPowerOn());
       //digitalWrite(hydroBabel.zoneGroups[i]->circFan.getPin(),hydroBabel.zoneGroups[i]->circFan.isPowerOn());
       //digitalWrite(hydroBabel.zoneGroups[i]->finFan.getPin(),hydroBabel.zoneGroups[i]->finFan.isPowerOn());
@@ -227,10 +228,12 @@ void loop() {
 
   }
   //analogWrite(batteryBank[batteryCounter],27);
-  digitalWrite(batteryBank[batteryCounter],HIGH);
+
+      digitalWrite(batteryBank[batteryCounter], LOW);
+    
   if((currentTime - lastBatteryCheck) >= chargingTimer){
     lastBatteryCheck = currentTime;
-    digitalWrite(batteryBank[batteryCounter],LOW);
+    digitalWrite(batteryBank[batteryCounter],HIGH);
     //lcd.clear();
     //lcd.setCursor(0,0);
     batteryCounter++;
