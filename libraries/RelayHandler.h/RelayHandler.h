@@ -33,13 +33,13 @@ public:
 void RelayHandler::initiate(){
     _relayCount =0;
     
-    addRelay("TableSaw",relay1Pin);
-    addRelay("Elevator",relay2Pin);
-    addRelay("Music",relay3Pin);
-    addRelay("Shop Lights",relay4Pin);
-    addRelay("Garage Lights",relay5Pin);
-    addRelay("Dust Collector",relay6Pin);
-    addRelay("Air Compressor",relay7Pin);
+    addRelay("TableSaw",relay8Pin);
+    addRelay("Elevator",relay9Pin);
+    addRelay("Music",relay10Pin);
+    addRelay("Shop Lights",relay11Pin);
+    addRelay("Garage Lights",relay12Pin);
+    addRelay("Dust Collector",relay13Pin);
+    addRelay("Air Compressor",relay14Pin);
     
     
     for(int i=0;i<_relayCount;i++){
