@@ -14,6 +14,7 @@ LiquidCrystal lcd(LCD_rs, LCD_en, LCD_d4, LCD_d5, LCD_d6, LCD_d7);
 class DisplayHandler{
 private:
     byte _brightness = 255;
+    byte _contrast = 100;
     byte _columnCount;
     byte _rowCount;
     char _selectorChar;
@@ -25,9 +26,10 @@ private:
     }
     void _setBacklight();
 public:
-    DisplayHandler(byte c=16, byte r=2){ _columnCount = c; _rowCount = r;}
+    DisplayHandler(byte c=LCD_columnCount, byte r=LCD_rowCount){ _columnCount = c; _rowCount = r;}
     void initiate(){
         lcd.begin(_columnCount,_rowCount);
+        analogWrite(LCD_Potentiometer,_contrast);
         pinMode(LCD_RED,OUTPUT);
         pinMode(LCD_GREEN,OUTPUT);
         pinMode(LCD_BLUE,OUTPUT);
@@ -64,11 +66,26 @@ public:
     void setMenuText(String* stringArray, byte arrayLength, byte rowSelected){
         lcd.clear();
         lcd.setCursor(0,0);
+        lcd.print(' ');
+        lcd.print(stringArray[0]);
+        lcd.setCursor(0,1);
+        lcd.print(' ');
+        lcd.print(stringArray[1]);
+        lcd.setCursor(0,2);
+        lcd.print(' ');
+        lcd.print(stringArray[2]);
+        lcd.setCursor(0,3);
+        lcd.print(' ');
+        lcd.print(stringArray[3]);
+        /*
         for(int i=0;i<arrayLength;i++){
+            Serial.println("DisplayHandler::setMenuText - i: "+(String)i);
+            Serial.println("stringArray[i]: "+stringArray[i]);
             lcd.setCursor(0,i);
             lcd.print(' ');
             lcd.print(stringArray[i]);
         }
+         */
         setSelectorRow(rowSelected);
     }
 };

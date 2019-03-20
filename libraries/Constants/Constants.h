@@ -10,26 +10,39 @@
 
 
 //const byte PROGMEM LCDfirstPin = 26;
-const byte PROGMEM LCD_rs=22;//26;
-const byte PROGMEM LCD_en=23;//27;
-const byte PROGMEM LCD_d4=24;//28;
-const byte PROGMEM LCD_d5=25;//29;
-const byte PROGMEM LCD_d6=26;//30;
-const byte PROGMEM LCD_d7=27;//31;
+const byte PROGMEM LCD_columnCount = 20;
+const byte PROGMEM LCD_rowCount = 4;
+const byte PROGMEM LCD_Potentiometer = 2;
+const byte PROGMEM LCD_rs=33;//22;
+const byte PROGMEM LCD_en=32;//23;
+const byte PROGMEM LCD_d4=31;//24;
+const byte PROGMEM LCD_d5=30;//25;
+const byte PROGMEM LCD_d6=29;//26;
+const byte PROGMEM LCD_d7=28;//27;
 const byte PROGMEM LCD_RED=5;
 const byte PROGMEM LCD_GREEN=6;
 const byte PROGMEM LCD_BLUE=7;
 
-//const byte PROGMEM buttonFirstPin = 4;
-const byte PROGMEM button1Pin = 28;//7;
-const byte PROGMEM button2Pin = 29;//6;
-const byte PROGMEM button3Pin = 30;//5;
-const byte PROGMEM button4Pin = 31;//4;
 
-const byte PROGMEM relayFirstPin = 39;
+const byte PROGMEM button1Pin = 27;//28;
+const byte PROGMEM button2Pin = 26;//29;
+const byte PROGMEM button3Pin = 25;//30;
+const byte PROGMEM button4Pin = 24;//31;
+const byte PROGMEM button5Pin = 23;
+const byte PROGMEM button6Pin = 22;
+
+const String PROGMEM button1Name = "metering";
+const String PROGMEM button2Name = "alarms";
+const String PROGMEM button3Name = "parameters";
+const String PROGMEM button4Name = "up";
+const String PROGMEM button5Name = "down";
+const String PROGMEM button6Name = "ok";
+
+
+const byte PROGMEM relayFirstPin = 34;
 //batteries
-const byte PROGMEM relay1Pin = 32;
-const byte PROGMEM relay2Pin = 33;
+const byte PROGMEM relay1Pin = 54;//32;
+const byte PROGMEM relay2Pin = 55;//33;
 const byte PROGMEM relay3Pin = 34;
 const byte PROGMEM relay4Pin = 35;
 //heater zones
@@ -44,7 +57,7 @@ const byte PROGMEM relay11Pin = 42;
 const byte PROGMEM relay12Pin = 43;
 const byte PROGMEM relay13Pin = 44;
 const byte PROGMEM relay14Pin = 45;
-//
+//extra relays
 const byte PROGMEM relay15Pin = 46;
 const byte PROGMEM relay16Pin = 47;
 const byte PROGMEM relay17Pin = 48;

@@ -155,6 +155,7 @@ void setup() {
 void loop() {
   //start listening for any button inputs
   buttonController.listening();
+  //Serial.print(buttonController.toStringPretty());
    //Serial.print(buttonController.toStringPretty());
     //print button name & action on lcd when pressed
     //buttonOutput = buttonController.getButtonOutputs();
@@ -175,7 +176,7 @@ void loop() {
       }
     }
     */
-    for(int i=0;i<4;i++){
+    for(int i=0;i<buttonController.buttonCount();i++){
       if(buttonMessage[i].hasChanged){
         gui.updateButtonInput(buttonMessage[i].name,buttonMessage[i].action);
 

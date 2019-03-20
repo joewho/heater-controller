@@ -63,7 +63,7 @@ public:
     } //updateListener()
     
     String toString(){
-        return "name: "+_name + " pin: "+(String)_pin+" action: "+_action+" lastChange: "+(String)_last_change+" hasChanged "+_has_changed;
+        return "name: "+_name + " pin: "+(String)_pin+" action: "+_action+" lastChange: "+(String)_last_change+" hasChanged "+(String)_has_changed;
     }
 };
 void ButtonListener::setHasChanged(bool b){}

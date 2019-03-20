@@ -18,22 +18,23 @@ struct ButtonOutput{
     bool hasChanged;
 };
 */
+
 class ButtonController2{
 private:
     int _arrLength;
     ButtonListener _listenerArr[10];
     //ButtonOutput _output[5];
-    ButtonMessage _output[5];
+    ButtonMessage _output[10];
 public:
     ButtonController2(){_arrLength=0;}
-    int arrayLength(){return _arrLength;}
+    int buttonCount(){return _arrLength;}
     void initiate(); //begin all buttons of buttonListeners in array
     void listening(); //read all buttons of buttonListeners in array using updateListener
     void addButton(String name, int pin);//create ButtonListener, ButtonTalker and Button from inputs
     //ButtonOutput * getButtonOutputs();
     ButtonMessage* getButtonMessage();
-  //  String toString(); //prep string of member values for serial print
-  //  String toStringPretty();
+    //String toString(); //prep string of member values for serial print
+    String toStringPretty();
     ButtonListener * getListener(int index){
         Serial.println(_listenerArr[index].toString());
         return &_listenerArr[index];
@@ -46,10 +47,14 @@ void ButtonController2::initiate(){
     pinMode(button2Pin,INPUT);
     pinMode(button3Pin,INPUT);
     pinMode(button4Pin,INPUT);
-    addButton("navButton",button1Pin);
-    addButton("selectButton",button2Pin);
-    addButton("upButton",button3Pin);
-    addButton("downButton",button4Pin);
+    pinMode(button5Pin,INPUT);
+    pinMode(button6Pin,INPUT);
+    addButton(button1Name,button1Pin);
+    addButton(button2Name,button2Pin);
+    addButton(button3Name,button3Pin);
+    addButton(button4Name,button4Pin);
+    addButton(button5Name,button5Pin);
+    addButton(button6Name,button6Pin);
 
 }
 
@@ -84,7 +89,7 @@ ButtonMessage* ButtonController2::getButtonMessage(){
     }
     return _output;
 }
-/*
+
 String ButtonController2::toStringPretty(){
     String str;
 //    str += "ButtonController-toString() listenerArray:\n";
@@ -106,6 +111,7 @@ String ButtonController2::toStringPretty(){
     str+= "\n";
     return str;
 }
+/*
 String ButtonController2::toString(){
     String str="";
     str += "ButtonController-toString() listenerArray- "+(String)_arrLength+"\n";
