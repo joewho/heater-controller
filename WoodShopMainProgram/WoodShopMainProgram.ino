@@ -3,7 +3,7 @@
 //#include "Relay.h"
 //#include "UserInputHandler.h"
 #include "GUIHandler.h"
-#include "RelayHandler.h"
+//#include "RelayHandler.h"
 #include "ButtonController2.h"
 #include "HydronicSystemObject.h"
 #include "LiquidCrystal.h"
@@ -19,9 +19,9 @@ HydronicDisplayData hydroSettingsChanges;
 
 GUIHandler gui;
 
-RelayHandler relayHandler;
-RelayMessage* relayMessages;
-RelayMessage relaySettingsChanges;
+//RelayHandler relayHandler;
+//RelayMessage* relayMessages;
+//RelayMessage relaySettingsChanges;
 
 
 byte batteryCounter = 0;
@@ -32,23 +32,19 @@ byte* batteryBank[] = {battery1,battery2,battery3,battery4};
 unsigned long timeDelay = 1000; //milliseconds to use for delay reading of sensors
 unsigned long lastTimeCheck = 0;
 unsigned long currentTime = 0;
-/*
-unsigned long demoTimeCheck = 0;
-unsigned long demoTimeDelay = 750;
-bool demoMode = false;
-*/
+
 void printBabel(HydronicSystemMessage babel){
   Serial.println("PRINT BABEL");
-  Serial.println("ZoneGroups");
+  //Serial.println("ZoneGroups");
   for(int i=0;i<babel.zoneCount;i++){
-    Serial.println(babel.zoneGroups[i]->name);
-    Serial.println("\ttargetTemp: "+(String)babel.zoneGroups[i]->targetTemp);
-    Serial.println("\tlowTemp: "+(String)babel.zoneGroups[i]->lowTemp);
-    Serial.println("\thighTemp: "+(String)babel.zoneGroups[i]->highTemp);
+    Serial.print(babel.zoneGroups[i]->name);
+    Serial.print(" targetTemp: "+(String)babel.zoneGroups[i]->targetTemp);
+//    Serial.println("\tlowTemp: "+(String)babel.zoneGroups[i]->lowTemp);
+//    Serial.println("\thighTemp: "+(String)babel.zoneGroups[i]->highTemp);
 //    Serial.println("\talarmLowTemp: "+(String)babel.zoneGroups[i]->alarmLowTemp);
 //    Serial.println("\talarmHighTemp: "+(String)babel.zoneGroups[i]->alarmHighTemp);
 //    Serial.println("\tcontrolValvePin: "+(String)babel.zoneGroups[i]->controlValve.getPin());
-    Serial.println("\tcontrolValvePowerOn: "+(String)babel.zoneGroups[i]->controlValve.isPowerOn());
+//    Serial.println("\tcontrolValvePowerOn: "+(String)babel.zoneGroups[i]->controlValve.isPowerOn());
 //    Serial.println("\tbackflowValvePin: "+(String)babel.zoneGroups[i]->backflowValve.getPin());
 //    Serial.println("\tbackflowValvePowerOn: "+(String)babel.zoneGroups[i]->backflowValve.isPowerOn());
 //    Serial.println("\tcircFanPin: "+(String)babel.zoneGroups[i]->circFan.getPin());
@@ -57,11 +53,11 @@ void printBabel(HydronicSystemMessage babel){
 //    Serial.println("\tfinFanPowerOn: "+(String)babel.zoneGroups[i]->finFan.isPowerOn());
 //    Serial.println("\tfinTemp: "+(String)babel.zoneGroups[i]->finTemp.getValue());
 //    Serial.println("\treturnWaterTemp: "+(String)babel.zoneGroups[i]->returnWaterTemp.getValue());
-    Serial.println("\tzoneTemp: "+(String)babel.zoneGroups[i]->zoneTemp.getValue());
-    Serial.println("\twaterFlowOpen: "+(String)babel.zoneGroups[i]->waterFlowOpen);
-    Serial.println("\tzoneControlOn: "+(String)babel.zoneGroups[i]->zoneControlOn);
-    Serial.println("\talarmState: "+(String)babel.zoneGroups[i]->alarmState);
-    Serial.println("\talarmMessage: "+babel.zoneGroups[i]->alarmMessage);  
+    Serial.print(" zoneTemp: "+(String)babel.zoneGroups[i]->zoneTemp.getValue());
+    Serial.print(" waterFlowOpen: "+(String)babel.zoneGroups[i]->waterFlowOpen);
+//    Serial.println("\tzoneControlOn: "+(String)babel.zoneGroups[i]->zoneControlOn);
+//    Serial.println("\talarmState: "+(String)babel.zoneGroups[i]->alarmState);
+    Serial.println(" alarmMessage: "+babel.zoneGroups[i]->alarmMessage);  
   }
 //  Serial.println("zoneCount: "+(String)babel.zoneCount);
 //  Serial.println("secondaryPumpOn: "+(String)babel.secondaryPump.isPowerOn());
@@ -69,11 +65,11 @@ void printBabel(HydronicSystemMessage babel){
 //  Serial.println("systemRunning: "+(String)babel.systemRunning);
 //  Serial.println("alarmState: "+(String)babel.alarmState);
 //  Serial.println("alarmMessage: "+babel.alarmMessage);
-  Serial.println("runningTime: "+(String)babel.runningTime);
+  Serial.println("runningTime: "+(String)babel.runningTime+"\n");
 
 
 }
-
+/*
 void printRelayData(RelayMessage tmp){
   Serial.println(tmp.name);
   Serial.println("Index: "+(String)tmp.index);
@@ -83,12 +79,12 @@ void printRelayData(RelayMessage tmp){
   Serial.println("lastChanged: "+(String)tmp.lastChanged);
   Serial.println();
 }
-
+*/
 void printGUIHydroData(HydronicDisplayData tmp){
     Serial.println("GUI HYDRO DATA");
 //      for(int i=0;i<hydroBabel.zoneCount;i++){
         //HydronicDisplayData tmp = hydroDisplayData[i];
-        Serial.println(tmp.name);
+        Serial.println("name: "+(String)tmp.name);
         Serial.println("index: "+(String)tmp.arrayIndex);
         Serial.println("current "+(String)tmp.currentTemp);
         Serial.println("target "+(String)tmp.targetTemp);
@@ -118,12 +114,12 @@ void prepGUIHydroData(){
       tmp.alarmState = hydroBabel.zoneGroups[i]->alarmState;
       tmp.alarmMessage = hydroBabel.zoneGroups[i]->alarmMessage;
       hydroDisplayData[i] = tmp;
+//      printGUIHydroData(tmp);
   }
 }
 
 void setup() {
   Serial.begin(9600);
-  //lcd.begin(16,2);
   
   pinMode(battery1,OUTPUT);
   pinMode(battery2,OUTPUT);
@@ -135,12 +131,12 @@ void setup() {
   digitalWrite(battery4,HIGH);
   
   buttonController.initiate();
-  relayHandler.initiate();
-  relayMessages = relayHandler.getAllRelayStatus();
+  //relayHandler.initiate();
+  //relayMessages = relayHandler.getAllRelayStatus();
   hydroHeater.initiate();
   gui.initiate();
-  relayMessages = relayHandler.getAllRelayStatus();
-  gui.preloadRelayData(relayMessages);
+ // relayMessages = relayHandler.getAllRelayStatus();
+ // gui.preloadRelayData(relayMessages);
   /*
   //print relay data
   Serial.println("SETUP::RELAY_DATA-"); 
@@ -155,27 +151,9 @@ void setup() {
 void loop() {
   //start listening for any button inputs
   buttonController.listening();
-  //Serial.print(buttonController.toStringPretty());
-   //Serial.print(buttonController.toStringPretty());
-    //print button name & action on lcd when pressed
-    //buttonOutput = buttonController.getButtonOutputs();
     buttonMessage = buttonController.getButtonMessage();
-/*
-    if(guiDemoMode){
-      currentTime = millis();
-      if((currentTime - demoTimeCheck)>= demoTimeDelay){
-        demoTimeCheck = currentTime;
-        gui.demoMode();
-        relaySettingsChanges = gui.getRelayChanges();
-        Serial.println("WoodShopMainProgram::demoMode()");
-        printRelayData(relaySettingsChanges);
-        relayHandler.editSettings(relaySettingsChanges);
-        //update relayData
-        gui.changeRelaySettings = false;
-        gui.updateRelayData(relayHandler.getAllRelayStatus());
-      }
-    }
-    */
+    //Serial.print(buttonController.toStringPretty());
+
     for(int i=0;i<buttonController.buttonCount();i++){
       if(buttonMessage[i].hasChanged){
         gui.updateButtonInput(buttonMessage[i].name,buttonMessage[i].action);
@@ -187,19 +165,19 @@ void loop() {
           hydroHeater.editSettings(hydroSettingsChanges);
           gui.changeHeaterSettings = false;
         }
-          
+          /*
         if(gui.changeRelaySettings){
           //get updated data
           relaySettingsChanges = gui.getRelayChanges();
-          Serial.println("WoodShopMainProgram::relayChanges()");
-          printRelayData(relaySettingsChanges);
+          //Serial.println("WoodShopMainProgram::relayChanges()");
+          //printRelayData(relaySettingsChanges);
           relayHandler.editSettings(relaySettingsChanges);
           //update relayData
           gui.changeRelaySettings = false;
           gui.updateRelayData(relayHandler.getAllRelayStatus());
 
           }
-          
+          */
       }
     }
    
@@ -210,7 +188,7 @@ void loop() {
     //tell heat system to update sensors and system values
     hydroHeater.updateSystem();
     hydroBabel = hydroHeater.getSystemStatus();
-    //printBabel(hydroBabel);
+//    printBabel(hydroBabel);
     
     //display content
     prepGUIHydroData();

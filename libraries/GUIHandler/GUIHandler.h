@@ -40,24 +40,23 @@ private:
     */
     //const String PROGMEM _demoMenu[2] = {"Demo - OFF","Demo - ON"};
     //const byte PROGMEM _demoMenuLength = 2;
-    /*
-    const String PROGMEM _relayMenu[7] = {"relay_1", "relay_2", "relay_3", "relay_4", "relay_5", "relay_6", "relay_7"};
-    */
-    String _relayMenu[7];
-    const byte PROGMEM _relayMenuLength = 7;
-    //byte _demoModeCounter;
+    
+//    const String PROGMEM _relayMenu[7] = {"relay_1", "relay_2", "relay_3", "relay_4", "relay_5", "relay_6", "relay_7"};
+    
+//    String _relayMenu[7];
+//    const byte PROGMEM _relayMenuLength = 7;
     byte _currentIndex;
     byte _heaterMenuIndex;
     byte _mainMenuIndex;
     menuModes _currentMenu;
     
-    String* _menuArray[4] = {_mainMenu, _heaterMenu, _heaterParamsMenu, _relayMenu};
+    String* _menuArray[4] = {_mainMenu, _heaterMenu, _heaterParamsMenu};//, _relayMenu};
     
     HydronicDisplayData* _heaterData;
     HydronicDisplayData _heaterEditedByUser;
     
-    RelayMessage* _relayData;
-    RelayMessage _relayEditedByUser;
+//    RelayMessage* _relayData;
+//    RelayMessage _relayEditedByUser;
     
     void _button1Pressed(String); //void _navButtonPressed(String);
     void _button2Pressed(String);
@@ -79,10 +78,11 @@ private:
     //void _displayBatteryItem();
     
 //    void _editRelaySettings(byte);
-    void _displayRelayItem();
-    void _updateRelayItemValue();
-    void _toggleRelay(byte);
-    void _toggleDemo();
+    
+//    void _displayRelayItem();
+//    void _updateRelayItemValue();
+//    void _toggleRelay(byte);
+//    void _toggleDemo();
     
 
 public:
@@ -93,19 +93,19 @@ public:
         _mainMenuIndex = 0;
     }
     bool changeHeaterSettings;
-    bool changeRelaySettings;
-    void preloadRelayData(RelayMessage[]);
+//    bool changeRelaySettings;
+//    void preloadRelayData(RelayMessage[]);
     
     void initiate();
     void updateHydroData(HydronicDisplayData[]);
-    void updateRelayData(RelayMessage[]);
+//    void updateRelayData(RelayMessage[]);
     void updateButtonInput(String, String);
     HydronicDisplayData getHeaterChanges();
-    RelayMessage getRelayChanges(); //wont be void, must build relay communication struct
-    void turnRelayOff(byte);
+//    RelayMessage getRelayChanges(); //wont be void, must build relay communication struct
+//    void turnRelayOff(byte);
     
 };
-
+/*
 void GUIHandler::turnRelayOff(byte index){
 //    _demoModeCounter = 0;
     _relayEditedByUser = _relayData[index];
@@ -113,6 +113,7 @@ void GUIHandler::turnRelayOff(byte index){
 
     changeRelaySettings = true;
 }
+ */
 void GUIHandler::initiate(){
     displayHandler.initiate();
     displayHandler.setSelectorChar(selectorChar);
@@ -120,12 +121,12 @@ void GUIHandler::initiate(){
     displayHandler.setText(_initialTextRow2,0,1);
 }
 
-void GUIHandler::preloadRelayData(RelayMessage relayData[]){
+/*void GUIHandler::preloadRelayData(RelayMessage relayData[]){
     for(int i=0;i<_relayMenuLength;i++){
         _relayMenu[i] = relayData[i].name;
     }
     _relayData = relayData;
-}
+}*/
 void GUIHandler::updateHydroData(HydronicDisplayData hydroData[]){
     //Serial.print("DisplayHandler::mainMenu size: ");
     //Serial.println(sizeof(_mainMenu)/sizeof(_mainMenu[0]));
@@ -134,10 +135,10 @@ void GUIHandler::updateHydroData(HydronicDisplayData hydroData[]){
     if(_currentMenu == PARAM) _displayHeaterParam();
 }
 
-void GUIHandler::updateRelayData(RelayMessage relayData[]){
+/*void GUIHandler::updateRelayData(RelayMessage relayData[]){
     _relayData = relayData;
     if(_currentMenu == RELAY) _updateRelayItemValue();
-}
+}*/
 
 void GUIHandler::updateButtonInput(String name, String action){
   
@@ -156,7 +157,7 @@ void GUIHandler::updateButtonInput(String name, String action){
 //void GUIHandler::_navButtonPressed(String action){
 void GUIHandler::_button1Pressed(String action){
     if(action == "wasPressed"){
-        Serial.println("GUIHANDLER::button1-metering wasPressed");
+        //Serial.println("GUIHANDLER::button1-metering wasPressed");
         switch(_currentMenu){
             case WELCOME:
                 _currentMenu = MAIN;
@@ -194,7 +195,6 @@ void GUIHandler::_button1Pressed(String action){
  */
 void GUIHandler::_button2Pressed(String action){
     if(action == "wasPressed"){
-        Serial.println("GUIHANDLER::button2-alarm wasPressed");
         //doesn't matter what menu the display is on
         //go to alarm menu
         displayHandler.clearDisplay();
@@ -207,7 +207,6 @@ void GUIHandler::_button2Pressed(String action){
  */
 void GUIHandler::_button3Pressed(String action){
     if(action == "wasPressed"){
-        Serial.println("GUIHANDLER::button3-parameters wasPressed");
     }
 }
 /*
@@ -216,7 +215,6 @@ void GUIHandler::_button3Pressed(String action){
 //void GUIHandler::_upButtonPressed(String action){
 void GUIHandler::_button4Pressed(String action){
     if(action == "wasPressed"){
-        Serial.println("GUIHANDLER::button4-up wasPressed");
         
         switch(_currentMenu){
             case PARAM:
@@ -226,7 +224,7 @@ void GUIHandler::_button4Pressed(String action){
                     _toggleZonePower();
                 break;
             case RELAY:
-                _toggleRelay(_currentIndex);
+//                _toggleRelay(_currentIndex);
                 break;
             default:
                 break;
@@ -240,7 +238,6 @@ void GUIHandler::_button4Pressed(String action){
 //void GUIHandler::_downButtonPressed(String action){
 void GUIHandler::_button5Pressed(String action){
     if(action == "wasPressed"){
-        Serial.println("GUIHANDLER::button5-down wasPressed");
         switch(_currentMenu){
             case PARAM:
                 if(_currentIndex != _heaterParamsMenuLength-1)
@@ -249,7 +246,7 @@ void GUIHandler::_button5Pressed(String action){
                     _toggleZonePower();
                 break;
             case RELAY:
-                _toggleRelay(_currentIndex);
+//                _toggleRelay(_currentIndex);
                 break;
             default:
                 break;
@@ -263,7 +260,6 @@ void GUIHandler::_button5Pressed(String action){
 //void GUIHandler::_selectButtonPressed(String action){
 void GUIHandler::_button6Pressed(String action){
     if(action == "wasPressed"){
-        Serial.println("GUIHANDLER::_button6-ok wasPressed");
         switch(_currentMenu){
             case MAIN:
                 _displayChildMenu();
@@ -273,7 +269,7 @@ void GUIHandler::_button6Pressed(String action){
                //     _toggleZonePower();
                 break;
             case RELAY:
-                _toggleRelay(_currentIndex);
+//                _toggleRelay(_currentIndex);
                 break;
             case BATTERY:
                 break;
@@ -284,7 +280,6 @@ void GUIHandler::_button6Pressed(String action){
         
     }
     else if(action == "pressedFor"){
-        Serial.println("GUIHANDLER::_button6-ok pressedFor");
         switch(_currentMenu){
             case HEATER:
                 //_currentMenu = EDIT;
@@ -363,11 +358,11 @@ void GUIHandler::_displayNextScreen(){
             _displayHeaterParam();//_currentIndex);
             break;
         case RELAY:
-            _currentIndex++;
-            if(_currentIndex >= _relayMenuLength)
-                _displayParentMenu();
-            else
-                _displayRelayItem();//_currentIndex);
+          //  _currentIndex++;
+          //  if(_currentIndex >= _relayMenuLength)
+          //      _displayParentMenu();
+          //  else
+//                _displayRelayItem();//_currentIndex);
             //change display to view next relay status
             break;
         case BATTERY:
@@ -437,23 +432,23 @@ void GUIHandler::_displayChildMenu(){
                 case 1:
                     //display relays menu items
                     _mainMenuIndex = _currentIndex;
-                    _currentMenu = RELAY;
-                    _currentIndex = 0;
-                    _displayRelayItem();
+                    //_currentMenu = RELAY;
+                    //_currentIndex = 0;
+//                    _displayRelayItem();
                     break;
                 case 2:
                     //display battery menu items
                     _mainMenuIndex = _currentIndex;
-                    _currentMenu = BATTERY;
-                    _currentIndex = 0;
-                    _displayRelayItem();
+                    //_currentMenu = BATTERY;
+                    //_currentIndex = 0;
+                    //_displayRelayItem();
                     break;
                 case 3:
                     //display alarm menu items
                     _mainMenuIndex = _currentIndex;
-                    _currentMenu = ALARM;
-                    _currentIndex = 0;
-                    _displayRelayItem();
+                    //_currentMenu = ALARM;
+                    //_currentIndex = 0;
+                    //_displayRelayItem();
                     break;
                 default:
                     break;
@@ -526,12 +521,13 @@ void GUIHandler::_updateHeaterItemValue(){
     if(_currentIndex != _heaterMenuLength-1){
         displayHandler.setText((String)_heaterData[_currentIndex].currentTemp,_heaterMenu[_currentIndex].length()+2,0);
         row2 = "Auto ";
+        Serial.print("zoneControl-");
         row2 += (_heaterData[_currentIndex].zoneControlOn)? "On  ":"Off ";
         row2 += (_heaterData[_currentIndex].waterFlowOpen)? "Rising":"Falling";
         displayHandler.setRowText(row2,1);
     }else{
-        row2 = (String)_heaterData[0].currentTemp+' ';
-        row2 += (String)_heaterData[1].currentTemp+' ';
+        row2 = (String)_heaterData[0].currentTemp+'  ';
+        row2 += (String)_heaterData[1].currentTemp+'    ';
         row2 += (String)_heaterData[2].currentTemp;
         displayHandler.setRowText(row2,1);
     }
@@ -602,7 +598,7 @@ HydronicDisplayData GUIHandler::getHeaterChanges(){
     
 }
 
-void GUIHandler::_displayRelayItem(){
+/*void GUIHandler::_displayRelayItem(){
     String row1, row2;
     row1 = _relayMenu[_currentIndex];
     row2 = "Power ";
@@ -613,7 +609,7 @@ void GUIHandler::_displayRelayItem(){
     displayHandler.setText(row2,0,1);
 }
 
-void GUIHandler::_updateRelayItemValue(){
+/*void GUIHandler::_updateRelayItemValue(){
     String row2;
     row2 = "Power ";
     row2 += (_relayData[_currentIndex].powerOn)? "On":"Off";
@@ -631,5 +627,5 @@ void GUIHandler::_toggleRelay(byte index){
 RelayMessage GUIHandler::getRelayChanges(){
     return _relayEditedByUser;
 }
-
+*/
 #endif /* GUIHandler_h */

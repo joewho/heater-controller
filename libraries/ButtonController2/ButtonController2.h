@@ -95,11 +95,12 @@ String ButtonController2::toStringPretty(){
 //    str += "ButtonController-toString() listenerArray:\n";
 //    str += "arrayLength: "+(String)_arrLength+"\n";
     for(int i=0;i<_arrLength;i++){
-        str+= "name:";
-        str+= _listenerArr[i].getName();
+        //str+= "name:";
+        str+= "-"+_listenerArr[i].getName();
        // str+= " pin: ";
        // str+= (String)_listenerArr[i].getPin();
-        str+= " action:";
+        //str+= " action:";
+        str+="- ";
         str+= _listenerArr[i].getAction();
     //    str+= " lastChange: ";
     //    str+= (String)_listenerArr[i].getLastChange();

@@ -8,8 +8,10 @@
 #ifndef DisplayHandler_h
 #define DisplayHandler_h
 #include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 
 LiquidCrystal lcd(LCD_rs, LCD_en, LCD_d4, LCD_d5, LCD_d6, LCD_d7);
+LiquidCrystal_I2C lcdI2C(0x27,16,2);
 
 class DisplayHandler{
 private:
@@ -29,16 +31,20 @@ public:
     DisplayHandler(byte c=LCD_columnCount, byte r=LCD_rowCount){ _columnCount = c; _rowCount = r;}
     void initiate(){
         lcd.begin(_columnCount,_rowCount);
+        lcdI2C.begin();
+        lcdI2C.backlight();
         analogWrite(LCD_Potentiometer,_contrast);
         pinMode(LCD_RED,OUTPUT);
         pinMode(LCD_GREEN,OUTPUT);
         pinMode(LCD_BLUE,OUTPUT);
         _brightness = 100;
-        _setBacklight();
+//        _setBacklight();
     }
     void clearDisplay(){
         lcd.clear();
         lcd.setCursor(0,0);
+        lcdI2C.clear();
+        lcdI2C.setCursor(0,0);
     }
     
     void setSelectorChar(char c){_selectorChar = c;}
@@ -46,10 +52,14 @@ public:
     void setSelectorRow(byte row){
         for(int i=0;i<_rowCount;i++){
             lcd.setCursor(0,i);
-            if(i == row)
+            lcdI2C.setCursor(0,i);
+            if(i == row){
                 lcd.print(_selectorChar);
-            else
+                lcdI2C.print(_selectorChar);
+            }else{
                 lcd.print(' ');
+                lcdI2C.print(' ');
+            }
         }
     }
     
@@ -57,10 +67,14 @@ public:
         _clearRow(row);
         lcd.setCursor(0,row);
         lcd.print(text);
+        lcdI2C.setCursor(0,row);
+        lcdI2C.print(text);
     }
     void setText(String text, byte column, byte row){
         lcd.setCursor(column,row);
         lcd.print(text);
+        lcdI2C.setCursor(column,row);
+        lcdI2C.print(text);
     }
     
     void setMenuText(String* stringArray, byte arrayLength, byte rowSelected){
@@ -77,15 +91,19 @@ public:
         lcd.setCursor(0,3);
         lcd.print(' ');
         lcd.print(stringArray[3]);
-        /*
-        for(int i=0;i<arrayLength;i++){
-            Serial.println("DisplayHandler::setMenuText - i: "+(String)i);
-            Serial.println("stringArray[i]: "+stringArray[i]);
-            lcd.setCursor(0,i);
-            lcd.print(' ');
-            lcd.print(stringArray[i]);
+        
+        lcdI2C.clear();
+        lcdI2C.setCursor(0,0);
+
+        
+        for(int i=0;i<2;i++){
+         //   Serial.println("DisplayHandler::setMenuText - i: "+(String)i);
+         //   Serial.println("stringArray[i]: "+stringArray[i]);
+            lcdI2C.setCursor(0,i);
+            lcdI2C.print(' ');
+            lcdI2C.print(stringArray[i]);
         }
-         */
+        
         setSelectorRow(rowSelected);
     }
 };
